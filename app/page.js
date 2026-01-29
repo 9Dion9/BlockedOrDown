@@ -1,66 +1,34 @@
-import Image from "next/image";
-import styles from "./page.module.css";
-
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div style={{ padding: '40px 20px', maxWidth: '900px', margin: '0 auto', textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>
+      <h1 style={{ fontSize: '2.8em', color: '#2c3e50' }}>BlockedOrDown.com</h1>
+      <p style={{ fontSize: '1.3em', color: '#555', margin: '20px 0' }}>
+        Check if a website is down globally or blocked on your network (work/school/firewall).
+      </p>
+      <div style={{ margin: '40px 0' }}>
+        <input 
+          type="text" 
+          placeholder="Enter website (e.g., netflix.com)" 
+          style={{ padding: '15px', width: '70%', maxWidth: '500px', fontSize: '1.1em', borderRadius: '8px', border: '1px solid #ccc' }}
         />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.js file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+        <button style={{ padding: '15px 30px', fontSize: '1.1em', marginLeft: '10px', background: '#3498db', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+          Check Now
+        </button>
+      </div>
+      <p style={{ color: '#777' }}>Or quick test popular sites below:</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', margin: '40px 0' }}>
+        <button style={{ padding: '20px', fontSize: '1.2em', background: '#e74c3c', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>YouTube</button>
+        <button style={{ padding: '20px', fontSize: '1.2em', background: '#000000', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>TikTok</button>
+        <button style={{ padding: '20px', fontSize: '1.2em', background: '#e50914', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Netflix</button>
+        <button style={{ padding: '20px', fontSize: '1.2em', background: '#f09433', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Instagram</button>
+        <button style={{ padding: '20px', fontSize: '1.2em', background: '#25d366', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>WhatsApp</button>
+        <button style={{ padding: '20px', fontSize: '1.2em', background: '#5865f2', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Discord</button>
+        <button style={{ padding: '20px', fontSize: '1.2em', background: '#ff4500', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Reddit</button>
+        <button style={{ padding: '20px', fontSize: '1.2em', background: '#00ff99', color: 'black', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>ChatGPT</button>
+      </div>
+      <p style={{ color: '#888', fontSize: '0.9em', marginTop: '40px' }}>
+        Results are indicative only — advanced filtering may not be detected.
+      </p>
     </div>
   );
 }

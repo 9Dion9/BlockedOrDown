@@ -6,7 +6,7 @@ export default function Datenschutz() {
       <p>Diese Datenschutzerklärung klärt über die Art, den Umfang und Zweck der Verarbeitung von personenbezogenen Daten innerhalb unseres Onlineangebotes auf.</p>
       
       <h2>Verantwortlicher</h2>
-      <p>Dion<br />Musterstraße 1<br />33100 Paderborn<br />Deutschland<br />E-Mail: impressum@blockedordown.com</p>
+      <p>Dion Sample<br />Musterstraße 1<br />33100 Paderborn<br />Deutschland<br />E-Mail: impressum@blockedordown.com</p>
       
       <h2>Verarbeitung personenbezogener Daten</h2>
       <p>Beim Besuch dieser Website werden keine personenbezogenen Daten gespeichert. IP-Adressen werden nur temporär für Funktionszwecke verarbeitet (z. B. Erreichbarkeitsprüfungen) und nicht gespeichert.</p>
