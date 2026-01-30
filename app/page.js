@@ -76,9 +76,9 @@ export default function Home() {
   };
 
   return (
-    <div style={{ padding: '40px 20px', maxWidth: '900px', margin: '0 auto', textAlign: 'center', fontFamily: 'Arial, sans-serif' }}>
-      <h1 style={{ fontSize: '2.8em', color: '#2c3e50' }}>BlockedOrDown.com</h1>
-      <p style={{ fontSize: '1.3em', color: '#555', margin: '20px 0' }}>
+    <div style={{ padding: '40px 20px', maxWidth: '900px', margin: '0 auto', textAlign: 'center', fontFamily: 'Arial, sans-serif', background: '#000000', color: '#ffffff' }}>
+      <h1 style={{ fontSize: '2.8em', color: '#ecf0f1' }}>BlockedOrDown.com</h1>
+      <p style={{ fontSize: '1.3em', color: '#bdc3c7', margin: '20px 0' }}>
         Check if a website is down globally or blocked on your network (work/school/firewall).
       </p>
       <div style={{ margin: '40px 0' }}>
@@ -88,7 +88,7 @@ export default function Home() {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           disabled={loading}
-          style={{ padding: '15px', width: '70%', maxWidth: '500px', fontSize: '1.1em', borderRadius: '8px', border: '1px solid #ccc' }}
+          style={{ padding: '15px', width: '70%', maxWidth: '500px', fontSize: '1.1em', borderRadius: '8px', border: '1px solid #444', background: '#1c1c1c', color: '#ffffff' }}
         />
         <button 
           onClick={() => checkSite(url)}
@@ -98,8 +98,8 @@ export default function Home() {
           {loading ? 'Checking...' : 'Check Now'}
         </button>
       </div>
-      {result && <p style={{ margin: '30px 0', fontSize: '1.2em', whiteSpace: 'pre-wrap', fontWeight: 'bold', color: '#2c3e50' }}>{result}</p>}
-      <p style={{ color: '#777' }}>Or quick test popular sites below:</p>
+      {result && <p style={{ margin: '30px 0', fontSize: '1.2em', whiteSpace: 'pre-wrap', fontWeight: 'bold', color: '#ecf0f1' }}>{result}</p>}
+      <p style={{ color: '#bdc3c7' }}>Or quick test popular sites below:</p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', margin: '40px 0' }}>
         <button onClick={() => checkSite('youtube.com')} disabled={loading} style={{ padding: '20px', fontSize: '1.2em', background: '#e74c3c', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>YouTube</button>
         <button onClick={() => checkSite('tiktok.com')} disabled={loading} style={{ padding: '20px', fontSize: '1.2em', background: '#000000', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>TikTok</button>
@@ -110,18 +110,23 @@ export default function Home() {
         <button onClick={() => checkSite('reddit.com')} disabled={loading} style={{ padding: '20px', fontSize: '1.2em', background: '#ff4500', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Reddit</button>
         <button onClick={() => checkSite('chatgpt.com')} disabled={loading} style={{ padding: '20px', fontSize: '1.2em', background: '#00ff99', color: 'black', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>ChatGPT</button>
       </div>
-      <p style={{ color: '#777', margin: '60px 0 20px' }}>Popular status checks:</p>
-<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px', margin: '20px 0' }}>
-  <Link href="/status/youtube" style={{ padding: '12px', background: '#e74c3c', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>YouTube</Link>
-  <Link href="/status/netflix" style={{ padding: '12px', background: '#e50914', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Netflix</Link>
-  <Link href="/status/tiktok" style={{ padding: '12px', background: '#000000', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>TikTok</Link>
-  <Link href="/status/instagram" style={{ padding: '12px', background: '#f09433', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Instagram</Link>
-  <Link href="/status/discord" style={{ padding: '12px', background: '#5865f2', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Discord</Link>
-  <Link href="/status/chatgpt" style={{ padding: '12px', background: '#00ff99', color: 'black', borderRadius: '8px', textDecoration: 'none' }}>ChatGPT</Link>
-</div>
-      <p style={{ color: '#888', fontSize: '0.9em', marginTop: '40px' }}>
+
+      <p style={{ color: '#bdc3c7', margin: '60px 0 20px' }}>Popular status checks:</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px', margin: '20px 0' }}>
+        <Link href="/status/youtube" style={{ padding: '12px', background: '#e74c3c', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>YouTube</Link>
+        <Link href="/status/netflix" style={{ padding: '12px', background: '#e50914', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Netflix</Link>
+        <Link href="/status/tiktok" style={{ padding: '12px', background: '#000000', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>TikTok</Link>
+        <Link href="/status/instagram" style={{ padding: '12px', background: '#f09433', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Instagram</Link>
+        <Link href="/status/discord" style={{ padding: '12px', background: '#5865f2', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Discord</Link>
+        <Link href="/status/chatgpt" style={{ padding: '12px', background: '#00ff99', color: 'black', borderRadius: '8px', textDecoration: 'none' }}>ChatGPT</Link>
+        <Link href="/status/reddit" style={{ padding: '12px', background: '#ff4500', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Reddit</Link>
+        <Link href="/status/spotify" style={{ padding: '12px', background: '#1db954', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Spotify</Link>
+      </div>
+
+      <p style={{ color: '#bdc3c7', fontSize: '0.9em', marginTop: '40px' }}>
         Results are indicative only — advanced filtering may not be detected. Confidence based on checks.
       </p>
+
       <p style={{ marginTop: '50px' }}>
         <Link href="/my-ip" style={{ padding: '15px 30px', fontSize: '1.1em', background: '#27ae60', color: 'white', textDecoration: 'none', borderRadius: '8px', cursor: 'pointer' }}>
           What Is My IP Address?
