@@ -37,7 +37,7 @@ export default async function BlockedAtSchoolPage({ params }) {
         "name": `What can I do if ${siteName} is blocked at school?`,
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": `Try a VPN (if allowed), mobile data, or wait until after school. Results are indicative — some blocks may not be detected. Always follow school rules.`
+          "text": `Follow school rules and use allowed devices or times. Results are indicative — some blocks may not be detected.`
         }
       }
     ]
@@ -129,7 +129,7 @@ export default async function BlockedAtSchoolPage({ params }) {
             What can I do if {siteName} is blocked at school?
           </summary>
           <p style={{ color: '#95a5a6', marginTop: '10px' }}>
-            Use a VPN (if allowed), mobile data, or wait until after school. Always follow school rules.
+            Follow school rules and use allowed devices or times. Results are indicative — some blocks may not be detected.
           </p>
         </details>
       </section>

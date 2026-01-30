@@ -126,7 +126,27 @@ export default function Home() {
       <p style={{ color: '#bdc3c7', fontSize: '0.9em', marginTop: '40px' }}>
         Results are indicative only — advanced filtering may not be detected. Confidence based on checks.
       </p>
-
+<section style={{ margin: '60px 0', padding: '20px', background: '#1c1c1c', borderRadius: '12px' }}>
+  <h2 style={{ fontSize: '1.6em', color: '#ecf0f1', marginBottom: '15px' }}>
+    Need to Access Blocked Sites?
+  </h2>
+  <p style={{ color: '#bdc3c7', marginBottom: '20px' }}>
+    For work, travel, or privacy, a trusted VPN can help. We recommend reliable options.
+  </p>
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '400px', margin: '0 auto' }}>
+    <a 
+      href="https://nordvpn.com/" // Replace with your real link
+      target="_blank" 
+      rel="noopener noreferrer"
+      style={{ padding: '12px', background: '#2ecc71', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}
+    >
+      NordVPN (Fast & Secure)
+    </a>
+    <p style={{ fontSize: '0.8em', color: '#95a5a6' }}>
+      Affiliate disclosure: We may earn a commission if you sign up — at no extra cost to you.
+    </p>
+  </div>
+</section>
       <p style={{ marginTop: '50px' }}>
         <Link href="/my-ip" style={{ padding: '15px 30px', fontSize: '1.1em', background: '#27ae60', color: 'white', textDecoration: 'none', borderRadius: '8px', cursor: 'pointer' }}>
           What Is My IP Address?
