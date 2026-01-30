@@ -25,7 +25,7 @@ export default function ClientStatusContent({ site, siteName }) {
       },
       {
         "@type": "Question",
-        "name": `How accurate is the ${siteName} status check?`,
+        "name": `How accurate is the check for ${siteName}?`,
         "acceptedAnswer": {
           "@type": "Answer",
           "text": `High accuracy for common outages and blocks. Some advanced filtering (SSL inspection, content-based) may not be detected — results are indicative only. Try direct access or VPN if unsure.`
@@ -49,19 +49,19 @@ export default function ClientStatusContent({ site, siteName }) {
         Is {siteName} Down or Blocked?
       </h1>
 
-      <p style={{ fontSize: '1.3em', color: '#bdc3c7', margin: '20px 0' }}>
+      <p style={{ fontSize: '1.3em', color: '#bdc3c7', margin: '20px 0 10px' }}>
         Check if {siteName} is down globally or blocked on your network (work/school/firewall).
       </p>
 
-      <p style={{ fontSize: '1.1em', color: '#95a5a6', margin: '10px 0' }}>
+      <p style={{ fontSize: '1.1em', color: '#95a5a6', margin: '0 0 40px 0' }}>
         Quick test for {siteName} below — or use the full checker.
       </p>
 
-      <div style={{ margin: '40px 0' }}>
+      <div style={{ margin: '0 0 50px 0' }}>
         <button 
           onClick={() => window.location.href = `/?url=${site}.com`}
           style={{ 
-            padding: '15px 30px', 
+            padding: '15px 40px', 
             fontSize: '1.2em', 
             background: '#e74c3c', 
             color: 'white', 
@@ -74,12 +74,12 @@ export default function ClientStatusContent({ site, siteName }) {
         </button>
       </div>
 
-      <p style={{ color: '#95a5a6', fontSize: '0.9em', marginTop: '40px' }}>
+      <p style={{ color: '#95a5a6', fontSize: '0.9em', margin: '0 0 60px 0' }}>
         Results are indicative only — advanced filtering may not be detected. Confidence based on checks.
       </p>
 
-      <section style={{ marginTop: '60px', textAlign: 'left' }}>
-        <h2 style={{ fontSize: '1.8em', color: '#ecf0f1' }}>
+      <section style={{ margin: '0 0 60px 0', textAlign: 'left' }}>
+        <h2 style={{ fontSize: '1.8em', color: '#ecf0f1', marginBottom: '20px' }}>
           Frequently Asked Questions about {siteName}
         </h2>
 
@@ -129,22 +129,65 @@ export default function ClientStatusContent({ site, siteName }) {
         </details>
       </section>
 
-      <p style={{ margin: '60px 0 20px', color: '#bdc3c7' }}>
+      <p style={{ margin: '60px 0 20px', color: '#bdc3c7', textAlign: 'center' }}>
         More specific checks for {siteName}:
       </p>
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        gap: '24px', 
+        flexWrap: 'wrap', 
+        margin: '0 0 60px 0' 
+      }}>
         <Link 
           href={`/blocked-at-work/${site}`}
-          style={{ padding: '12px 24px', background: '#e67e22', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '1.1em' }}
+          style={{ 
+            padding: '14px 32px', 
+            background: '#e67e22', 
+            color: 'white', 
+            borderRadius: '10px', 
+            textDecoration: 'none', 
+            fontSize: '1.1em',
+            fontWeight: 'bold',
+            transition: 'background 0.2s'
+          }}
         >
           Blocked at Work?
         </Link>
         <Link 
           href={`/blocked-at-school/${site}`}
-          style={{ padding: '12px 24px', background: '#8e44ad', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '1.1em' }}
+          style={{ 
+            padding: '14px 32px', 
+            background: '#8e44ad', 
+            color: 'white', 
+            borderRadius: '10px', 
+            textDecoration: 'none', 
+            fontSize: '1.1em',
+            fontWeight: 'bold',
+            transition: 'background 0.2s'
+          }}
         >
           Blocked at School?
         </Link>
+      </div>
+
+      {/* Ad Placeholder - Clean & Blended */}
+      <div style={{ 
+        margin: '0 0 60px 0', 
+        padding: '30px', 
+        background: '#1a1a1a', 
+        borderRadius: '12px', 
+        minHeight: '280px', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        border: '2px dashed #333',
+        boxShadow: '0 4px 16px rgba(0,0,0,0.6)'
+      }}>
+        <p style={{ color: '#7f8c8d', fontSize: '1.1em', textAlign: 'center' }}>
+          Ad Placeholder (AdSense ready — 300×250 or responsive)<br />
+          Coming soon — high RPM spot!
+        </p>
       </div>
 
       <p style={{ marginTop: '50px' }}>

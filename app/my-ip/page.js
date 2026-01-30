@@ -64,6 +64,23 @@ export default function MyIP() {
             <p><strong>Connection Type:</strong> {ipData.org?.toLowerCase().includes('mobile') ? 'Likely mobile' : 'Likely residential/fiber'}</p>
           </>
         )}
+        <div style={{ 
+  margin: '50px 0', 
+  padding: '30px', 
+  background: '#1c1c1c', 
+  borderRadius: '12px', 
+  minHeight: '280px', 
+  display: 'flex', 
+  alignItems: 'center', 
+  justifyContent: 'center', 
+  border: '2px dashed #444',
+  boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+}}>
+  <p style={{ color: '#95a5a6', fontSize: '1.1em', textAlign: 'center' }}>
+    Ad Placeholder (AdSense ready — 300×250 or responsive)<br />
+    Coming soon — high RPM spot!
+  </p>
+</div>
       </div>
       <p style={{ color: '#95a5a6', fontSize: '0.9em' }}>
         Data from free public APIs (ipapi.co + ipify.org). Matches what most "what's my IP" sites show.

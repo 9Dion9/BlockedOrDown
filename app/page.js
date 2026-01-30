@@ -147,6 +147,17 @@ export default function Home() {
     </p>
   </div>
 </section>
+<p style={{ color: '#bdc3c7', margin: '80px 0 20px', fontSize: '1.1em' }}>
+  Blocked at Work or School?
+</p>
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', margin: '0 0 60px 0' }}>
+  <Link href="/blocked-at-work/youtube" style={{ padding: '16px', background: '#e67e22', color: 'white', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold' }}>YouTube Blocked at Work?</Link>
+  <Link href="/blocked-at-school/youtube" style={{ padding: '16px', background: '#8e44ad', color: 'white', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold' }}>YouTube Blocked at School?</Link>
+  <Link href="/blocked-at-work/netflix" style={{ padding: '16px', background: '#e67e22', color: 'white', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold' }}>Netflix Blocked at Work?</Link>
+  <Link href="/blocked-at-school/netflix" style={{ padding: '16px', background: '#8e44ad', color: 'white', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold' }}>Netflix Blocked at School?</Link>
+  <Link href="/blocked-at-work/discord" style={{ padding: '16px', background: '#e67e22', color: 'white', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold' }}>Discord Blocked at Work?</Link>
+  <Link href="/blocked-at-school/discord" style={{ padding: '16px', background: '#8e44ad', color: 'white', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold' }}>Discord Blocked at School?</Link>
+</div>
       <p style={{ marginTop: '50px' }}>
         <Link href="/my-ip" style={{ padding: '15px 30px', fontSize: '1.1em', background: '#27ae60', color: 'white', textDecoration: 'none', borderRadius: '8px', cursor: 'pointer' }}>
           What Is My IP Address?
