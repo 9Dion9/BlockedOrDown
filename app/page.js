@@ -1,19 +1,20 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function Home() {
   const [url, setUrl] = useState('');
   const [result, setResult] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const checkSite = async (inputUrl) => {
-    if (!inputUrl) {
+  const checkSite = async (siteUrl) => {
+    if (!siteUrl) {
       setResult('Please enter a website.');
       return;
     }
 
-    let cleanInput = inputUrl.trim().toLowerCase();
+    let cleanInput = siteUrl.trim().toLowerCase();
     if (!cleanInput.startsWith('http://') && !cleanInput.startsWith('https://')) {
       cleanInput = 'https://' + cleanInput;
     }
@@ -111,6 +112,11 @@ export default function Home() {
       </div>
       <p style={{ color: '#888', fontSize: '0.9em', marginTop: '40px' }}>
         Results are indicative only — advanced filtering may not be detected. Confidence based on checks.
+      </p>
+      <p style={{ marginTop: '50px' }}>
+        <Link href="/my-ip" style={{ padding: '15px 30px', fontSize: '1.1em', background: '#27ae60', color: 'white', textDecoration: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+          What Is My IP Address?
+        </Link>
       </p>
     </div>
   );
