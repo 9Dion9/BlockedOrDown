@@ -129,6 +129,24 @@ export default function ClientStatusContent({ site, siteName }) {
         </details>
       </section>
 
+      <p style={{ margin: '60px 0 20px', color: '#bdc3c7' }}>
+        More specific checks for {siteName}:
+      </p>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+        <Link 
+          href={`/blocked-at-work/${site}`}
+          style={{ padding: '12px 24px', background: '#e67e22', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '1.1em' }}
+        >
+          Blocked at Work?
+        </Link>
+        <Link 
+          href={`/blocked-at-school/${site}`}
+          style={{ padding: '12px 24px', background: '#8e44ad', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '1.1em' }}
+        >
+          Blocked at School?
+        </Link>
+      </div>
+
       <p style={{ marginTop: '50px' }}>
         <Link 
           href="/" 
