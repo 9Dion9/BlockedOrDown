@@ -122,7 +122,23 @@ export default function Home() {
         <Link href="/status/reddit" style={{ padding: '12px', background: '#ff4500', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Reddit</Link>
         <Link href="/status/spotify" style={{ padding: '12px', background: '#1db954', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Spotify</Link>
       </div>
-
+<div style={{ 
+  margin: '60px 0', 
+  padding: '30px', 
+  background: '#1c1c1c', 
+  borderRadius: '12px', 
+  minHeight: '280px', 
+  display: 'flex', 
+  alignItems: 'center', 
+  justifyContent: 'center', 
+  border: '2px dashed #444',
+  boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
+}}>
+  <p style={{ color: '#95a5a6', fontSize: '1.1em', textAlign: 'center' }}>
+    Ad Placeholder (AdSense ready — 728×90 leaderboard or responsive)<br />
+    Coming soon — homepage high RPM spot!
+  </p>
+</div>
       <p style={{ color: '#bdc3c7', fontSize: '0.9em', marginTop: '40px' }}>
         Results are indicative only — advanced filtering may not be detected. Confidence based on checks.
       </p>
