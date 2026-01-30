@@ -122,6 +122,7 @@ export default function Home() {
         <Link href="/status/reddit" style={{ padding: '12px', background: '#ff4500', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Reddit</Link>
         <Link href="/status/spotify" style={{ padding: '12px', background: '#1db954', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Spotify</Link>
       </div>
+      
 <div style={{ 
   margin: '60px 0', 
   padding: '30px', 
