@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/*  # Optional: block API routes if needed
+Disallow: /private/*  # Add any private paths later
+
+Sitemap: https://blocked-or-down.vercel.app/sitemap

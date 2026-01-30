@@ -110,6 +110,15 @@ export default function Home() {
         <button onClick={() => checkSite('reddit.com')} disabled={loading} style={{ padding: '20px', fontSize: '1.2em', background: '#ff4500', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Reddit</button>
         <button onClick={() => checkSite('chatgpt.com')} disabled={loading} style={{ padding: '20px', fontSize: '1.2em', background: '#00ff99', color: 'black', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>ChatGPT</button>
       </div>
+      <p style={{ color: '#777', margin: '60px 0 20px' }}>Popular status checks:</p>
+<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px', margin: '20px 0' }}>
+  <Link href="/status/youtube" style={{ padding: '12px', background: '#e74c3c', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>YouTube</Link>
+  <Link href="/status/netflix" style={{ padding: '12px', background: '#e50914', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Netflix</Link>
+  <Link href="/status/tiktok" style={{ padding: '12px', background: '#000000', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>TikTok</Link>
+  <Link href="/status/instagram" style={{ padding: '12px', background: '#f09433', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Instagram</Link>
+  <Link href="/status/discord" style={{ padding: '12px', background: '#5865f2', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Discord</Link>
+  <Link href="/status/chatgpt" style={{ padding: '12px', background: '#00ff99', color: 'black', borderRadius: '8px', textDecoration: 'none' }}>ChatGPT</Link>
+</div>
       <p style={{ color: '#888', fontSize: '0.9em', marginTop: '40px' }}>
         Results are indicative only — advanced filtering may not be detected. Confidence based on checks.
       </p>
