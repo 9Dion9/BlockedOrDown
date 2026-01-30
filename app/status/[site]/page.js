@@ -1,6 +1,6 @@
-import ClientStatusContent from './ClientStatusContent'; // We'll create this file next
+import ClientStatusContent from './ClientStatusContent';
 
-export const dynamicParams = true; // Allows any slug (fallback to dynamic if not pre-generated)
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const sites = [
@@ -17,7 +17,7 @@ export async function generateStaticParams() {
 }
 
 export default async function StatusPage({ params }) {
-  const { site } = await params; // Await if Promise
+  const { site } = await params;
   const siteName = site 
     ? site.charAt(0).toUpperCase() + site.slice(1).replace(/-/g, ' ')
     : 'Site';

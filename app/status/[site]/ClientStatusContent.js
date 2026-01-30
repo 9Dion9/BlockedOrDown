@@ -20,7 +20,7 @@ export default function ClientStatusContent({ site, siteName }) {
         "name": `Why is ${siteName} blocked at work or school?`,
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": `Workplaces and schools often block social media, streaming, or entertainment sites using firewalls, DNS filtering, or proxy rules to manage productivity and bandwidth.`
+          "text": `Workplaces and schools often block ${siteName} and similar sites using firewalls, DNS filtering, or proxy rules to improve focus, reduce bandwidth usage, or comply with policies.`
         }
       },
       {
@@ -106,10 +106,10 @@ export default function ClientStatusContent({ site, siteName }) {
           border: '1px solid #333' 
         }}>
           <summary style={{ fontWeight: 'bold', cursor: 'pointer', color: '#bdc3c7' }}>
-            Why is {siteName} blocked at work/school?
+            Why is {siteName} blocked at work or school?
           </summary>
           <p style={{ color: '#95a5a6', marginTop: '10px' }}>
-            Many workplaces/schools block social media, streaming, or entertainment sites for productivity or bandwidth reasons using firewall, DNS filtering, or proxy rules.
+            Workplaces and schools often block social media, streaming, or entertainment sites for productivity or bandwidth reasons using firewall, DNS filtering, or proxy rules.
           </p>
         </details>
 
@@ -146,7 +146,6 @@ export default function ClientStatusContent({ site, siteName }) {
         </Link>
       </p>
 
-      {/* JSON-LD FAQ Schema */}
       <script type="application/ld+json">
         {JSON.stringify(faqSchema)}
       </script>
