@@ -10,7 +10,7 @@ export default function CategoryScan({ categoryInfo, category }) {
 
   const knownPublicSites = [
     'chatgpt', 'gemini', 'claude', 'midjourney', 'runway', 'canva', 'sora', 'fathom', 'saner.ai', 'semrush', 'wix', 'hostinger', 'squarespace', 'pythagora', 'v0', 'grok'
-  ]; // Lowercase names
+  ];
 
   const scanSites = async () => {
     setScanning(true);
@@ -30,7 +30,6 @@ export default function CategoryScan({ categoryInfo, category }) {
       const batchPromises = batch.map(site => new Promise(resolve => {
         const siteLower = site.name.toLowerCase();
 
-        // Hardcoded fallback for known public sites (avoid false blocked)
         if (knownPublicSites.includes(siteLower)) {
           resolve({ site: site.name, status: 'accessible', detail: 'Accessible (public site)' });
           return;
@@ -86,109 +85,178 @@ export default function CategoryScan({ categoryInfo, category }) {
   };
 
   return (
-    <div style={{ 
-      padding: '40px 20px', 
-      maxWidth: '900px', 
-      margin: '0 auto', 
-      textAlign: 'center', 
-      fontFamily: 'Arial, sans-serif', 
-      background: '#000000', 
-      color: '#ffffff', 
-      minHeight: '100vh' 
+    <div style={{
+      padding: '100px 16px 80px',
+      margin: '0',
+      textAlign: 'center',
+      fontFamily: 'Arial, sans-serif',
+      background: '#000000',
+      color: '#ffffff',
+      minHeight: '100vh',
+      backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(0, 212, 255, 0.12) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(0, 212, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
     }}>
-      <h1 style={{ fontSize: '2.8em', color: '#ecf0f1' }}>
+      {/* Title */}
+      <h1 style={{
+        fontSize: '3.2rem',
+        fontWeight: '900',
+        background: 'linear-gradient(90deg, #00d4ff, #3b82f6, #a5b4fc)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        marginBottom: '28px',
+        textShadow: '0 0 50px rgba(0,212,255,0.6)'
+      }}>
         {categoryInfo.title} Scan
       </h1>
 
-      <p style={{ fontSize: '1.3em', color: '#bdc3c7', margin: '20px 0 40px 0' }}>
-        Scan popular {categoryInfo.title.toLowerCase()} sites to see what's blocked on your network (work/school/firewall).
+      <p style={{ fontSize: '1.3rem', color: '#c9d1d9', marginBottom: '40px' }}>
+        Scan popular {categoryInfo.title.toLowerCase()} sites to see what's blocked.
       </p>
 
-      <p style={{ color: '#e74c3c', fontSize: '0.9em', marginBottom: '20px' }}>
-        Note: Some sites have strict security that can cause false "Blocked" results. If a site loads in your browser but shows blocked here, it's likely a false positive.
+      <p style={{ color: '#ff4d4d', fontSize: '0.9rem', marginBottom: '28px' }}>
+        Note: Some sites may show false "Blocked" due to strict security.
       </p>
 
+      {/* Scan Button */}
       <button 
         onClick={scanSites}
         disabled={scanning}
         style={{ 
-          padding: '15px 30px', 
-          fontSize: '1.2em', 
-          background: '#3498db', 
+          padding: '12px 32px', 
+          fontSize: '1.1rem', 
+          background: 'linear-gradient(90deg, #00d4ff, #3b82f6)', 
           color: 'white', 
           border: 'none', 
-          borderRadius: '8px', 
-          cursor: 'pointer' 
+          borderRadius: '9999px', 
+          cursor: 'pointer', 
+          boxShadow: '0 0 30px rgba(0,212,255,0.5)', 
+          transition: 'all 0.3s ease'
         }}
+        className="hover:shadow-[0_0_60px_rgba(0,212,255,0.7)] hover:scale-105"
       >
         {scanning ? 'Scanning...' : 'Start Scan Now'}
       </button>
 
-      <p style={{ color: '#95a5a6', fontSize: '0.9em', marginTop: '20px' }}>
-        Estimate: 5–20 seconds for {categoryInfo.sites.length} sites (depends on your internet speed). Results client-side only — private.
+      <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '24px 0 50px 0' }}>
+        Estimate: 5–20 seconds • Client-side only
       </p>
 
-      {scanning && <div style={{ margin: '30px 0' }}>
-        <div style={{ background: '#1c1c1c', borderRadius: '8px', height: '20px', overflow: 'hidden' }}>
-          <div style={{ width: `${progress}%`, height: '100%', background: '#2ecc71', transition: 'width 0.5s' }}></div>
+      {scanning && (
+        <div style={{ margin: '40px 0' }}>
+          <div style={{ 
+            background: 'rgba(13,17,23,0.6)', 
+            borderRadius: '9999px', 
+            height: '8px', 
+            overflow: 'hidden', 
+            boxShadow: '0 0 15px rgba(0,212,255,0.2)', 
+            maxWidth: '360px', 
+            margin: '0 auto' 
+          }}>
+            <div style={{ 
+              width: `${progress}%`, 
+              height: '100%', 
+              background: 'linear-gradient(90deg, #00d4ff, #3b82f6)', 
+              transition: 'width 0.5s' 
+            }}></div>
+          </div>
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '10px' }}>
+            {progress}%
+          </p>
         </div>
-        <p style={{ color: '#95a5a6', fontSize: '0.9em', marginTop: '10px' }}>
-          Progress: {progress}%
-        </p>
-      </div>}
+      )}
 
-      {results.length > 0 && <div style={{ margin: '40px 0', textAlign: 'left' }}>
-        <h2 style={{ fontSize: '1.8em', color: '#ecf0f1', marginBottom: '20px' }}>
-          Scan Results
-        </h2>
+      {results.length > 0 && (
+        <div style={{ margin: '50px 0' }}>
+          <h2 style={{ 
+            fontSize: '2rem', 
+            color: '#00d4ff', 
+            marginBottom: '32px', 
+            textAlign: 'center', 
+            textShadow: '0 0 25px rgba(0,212,255,0.4)' 
+          }}>
+            Scan Results
+          </h2>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
-          {results.map((result, i) => (
-            <div key={i} style={{ 
-              background: '#1c1c1c', 
-              borderRadius: '12px', 
-              padding: '20px', 
-              boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-              border: `2px solid ${result.status === 'accessible' ? '#2ecc71' : '#e74c3c'}` 
-            }}>
-              <h3 style={{ fontSize: '1.4em', color: '#ecf0f1', marginBottom: '10px' }}>
-                {result.site}
-              </h3>
-              <p style={{ fontSize: '1.2em', fontWeight: 'bold', color: result.status === 'accessible' ? '#2ecc71' : '#e74c3c' }}>
-                {result.status === 'accessible' ? '✅ Accessible' : '❌ Blocked'}
-              </p>
-              <p style={{ color: '#95a5a6', fontSize: '0.9em', marginTop: '5px' }}>
-                {result.detail}
-              </p>
-              <p style={{ marginTop: '10px' }}>
-                <Link 
-                  href={`/status/${result.site.toLowerCase().replace(/\s+/g, '-')}`}
-                  style={{ color: '#3498db', textDecoration: 'underline' }}
-                >
-                  Full Check
-                </Link>
-              </p>
-            </div>
-          ))}
+          {/* Compact vertical list */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            maxWidth: '800px',
+            margin: '0 auto'
+          }}>
+            {results.map((result, i) => (
+              <div key={i} style={{ 
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '14px 20px',
+                background: 'linear-gradient(135deg, #0d1117, #161b22)', 
+                borderRadius: '12px', 
+                boxShadow: '0 4px 16px rgba(0,212,255,0.08)', 
+                border: `1px solid ${result.status === 'accessible' ? 'rgba(0,212,255,0.25)' : 'rgba(239,68,68,0.25)'}`,
+                transition: 'all 0.3s ease'
+              }} className="hover:shadow-[0_0_35px_rgba(0,212,255,0.4)] hover:scale-[1.01]">
+                {/* Left: name + detail */}
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ fontSize: '1.15rem', color: '#ffffff', margin: 0 }}>
+                    {result.site}
+                  </h3>
+                  <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '4px' }}>
+                    {result.detail}
+                  </p>
+                </div>
+
+                {/* Right: status badge + link */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <span style={{
+                    padding: '5px 14px',
+                    fontSize: '0.85rem',
+                    fontWeight: '600',
+                    borderRadius: '9999px',
+                    background: result.status === 'accessible' ? 'rgba(0,255,157,0.12)' : 'rgba(255,77,77,0.12)',
+                    color: result.status === 'accessible' ? '#00ff9d' : '#ff4d4d',
+                    border: `1px solid ${result.status === 'accessible' ? 'rgba(0,255,157,0.25)' : 'rgba(255,77,77,0.25)'}`,
+                  }}>
+                    {result.status === 'accessible' ? 'Accessible' : 'Blocked'}
+                  </span>
+
+                  <Link 
+                    href={`/status/${result.site.toLowerCase().replace(/\s+/g, '-')}`}
+                    style={{ 
+                      color: '#00d4ff', 
+                      fontSize: '0.85rem', 
+                      fontWeight: '600', 
+                      textDecoration: 'none' 
+                    }}
+                  >
+                    Full Check →
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '40px', textAlign: 'center' }}>
+            {results.filter(r => r.status === 'accessible').length} / {results.length} accessible
+          </p>
         </div>
+      )}
 
-        <p style={{ color: '#95a5a6', fontSize: '0.9em', marginTop: '30px' }}>
-          {results.filter(r => r.status === 'accessible').length} / {results.length} accessible. Results based on client-side scan — depend on your internet speed.
-        </p>
-      </div>}
-
-      <p style={{ marginTop: '50px' }}>
+      <p style={{ marginTop: '80px', textAlign: 'center' }}>
         <Link 
           href="/categories" 
           style={{ 
-            padding: '15px 30px', 
-            fontSize: '1.1em', 
-            background: '#27ae60', 
+            padding: '10px 32px', 
+            fontSize: '1rem', 
+            background: 'linear-gradient(90deg, #00d4ff, #3b82f6)', 
             color: 'white', 
             textDecoration: 'none', 
-            borderRadius: '8px', 
-            cursor: 'pointer' 
+            borderRadius: '9999px', 
+            cursor: 'pointer', 
+            boxShadow: '0 0 30px rgba(0,212,255,0.5)', 
+            transition: 'all 0.3s ease'
           }}
+          className="hover:shadow-[0_0_50px_rgba(0,212,255,0.7)] hover:scale-105"
         >
           Back to Categories
         </Link>

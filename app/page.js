@@ -22,7 +22,6 @@ export default function Home() {
     setLoading(true);
     setResult(`Checking ${cleanInput}...`);
 
-    // Client-side check
     const clientPromise = new Promise((resolve) => {
       const img = new Image();
       const timeout = setTimeout(() => {
@@ -43,7 +42,6 @@ export default function Home() {
       img.src = cleanInput + '/favicon.ico?' + Date.now();
     });
 
-    // Server-side check
     const serverResponse = await fetch(`/api/check?url=${encodeURIComponent(cleanInput)}`);
     const serverData = await serverResponse.json();
 
@@ -51,7 +49,6 @@ export default function Home() {
 
     setLoading(false);
 
-    // Decision matrix
     let finalMessage = '';
     let confidence = '';
 
@@ -72,113 +69,186 @@ export default function Home() {
       confidence = 'Low confidence';
     }
 
-    setResult(`${finalMessage}\n${confidence}\n(We tested client network + global server probe. Advanced blocks may not detect.)`);
+    setResult(`${finalMessage}\n${confidence}\n(We tested client network + global server probe. Advanced blocks may not be detected.)`);
   };
 
   return (
-    <div style={{ padding: '40px 20px', maxWidth: '900px', margin: '0 auto', textAlign: 'center', fontFamily: 'Arial, sans-serif', background: '#000000', color: '#ffffff' }}>
-      <h1 style={{ fontSize: '2.8em', color: '#ecf0f1' }}>BlockedOrDown.com</h1>
-      <p style={{ fontSize: '1.3em', color: '#bdc3c7', margin: '20px 0' }}>
-        Check if a website is down globally or blocked on your network (work/school/firewall).
+    <div style={{
+      padding: '140px 20px 120px',
+      margin: '0',
+      textAlign: 'center',
+      fontFamily: 'Arial, sans-serif',
+      background: '#000000',
+      color: '#ffffff',
+      minHeight: '100vh',
+      backgroundImage: 'radial-gradient(circle at 10% 20%, rgba(0, 212, 255, 0.18) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(0, 212, 255, 0.14) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
+    }}>
+      {/* Hero Title – strong cyan/teal glow */}
+      <h1 style={{
+        fontSize: '4.5rem',
+        fontWeight: '900',
+        background: 'linear-gradient(90deg, #00d4ff, #3b82f6, #a5b4fc, #00d4ff)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        marginBottom: '32px',
+        textShadow: '0 0 60px rgba(0,212,255,0.7), 0 0 120px rgba(59,130,246,0.5)',
+        letterSpacing: '-1px'
+      }}>
+        Is this site down or blocked?
+      </h1>
+
+      <p style={{ fontSize: '1.6rem', color: '#c9d1d9', marginBottom: '48px', textShadow: '0 0 20px rgba(0,0,0,0.8)' }}>
+        Enter any website below to check instantly.
       </p>
-      <div style={{ margin: '40px 0' }}>
+
+      {/* Glassmorphic Search Bar with strong glow */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        maxWidth: '760px',
+        margin: '0 auto 120px auto',
+        position: 'relative',
+        zIndex: 1
+      }}>
         <input 
           type="text" 
-          placeholder="Enter website (e.g., netflix.com)" 
+          placeholder="e.g., youtube.com or netflix.com" 
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           disabled={loading}
-          style={{ padding: '15px', width: '70%', maxWidth: '500px', fontSize: '1.1em', borderRadius: '8px', border: '1px solid #444', background: '#1c1c1c', color: '#ffffff' }}
+          style={{ 
+            flex: 1,
+            padding: '20px 32px', 
+            fontSize: '1.35rem', 
+            borderRadius: '9999px 0 0 9999px', 
+            border: '1px solid rgba(0,212,255,0.3)', 
+            background: 'rgba(13,17,23,0.65)', 
+            color: '#ffffff', 
+            outline: 'none', 
+            backdropFilter: 'blur(20px)', 
+            boxShadow: '0 0 50px rgba(0,212,255,0.35), inset 0 0 20px rgba(0,0,0,0.4)', 
+            transition: 'all 0.3s ease'
+          }}
+          className="focus:border-[rgba(0,212,255,0.8)] focus:shadow-[0_0_80px_rgba(0,212,255,0.6)] focus:scale-102"
         />
         <button 
           onClick={() => checkSite(url)}
           disabled={loading}
-          style={{ padding: '15px 30px', fontSize: '1.1em', marginLeft: '10px', background: '#3498db', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+          style={{ 
+            padding: '20px 52px', 
+            fontSize: '1.35rem', 
+            background: 'linear-gradient(90deg, #00d4ff, #3b82f6, #00d4ff)', 
+            backgroundSize: '200% 100%',
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '0 9999px 9999px 0', 
+            cursor: 'pointer', 
+            transition: 'all 0.4s ease', 
+            boxShadow: '0 0 50px rgba(0,212,255,0.6)' 
+          }}
+          className="hover:shadow-[0_0_100px_rgba(0,212,255,0.8)] hover:scale-105 hover:animate-pulse-slow"
         >
           {loading ? 'Checking...' : 'Check Now'}
         </button>
       </div>
-      {result && <p style={{ margin: '30px 0', fontSize: '1.2em', whiteSpace: 'pre-wrap', fontWeight: 'bold', color: '#ecf0f1' }}>{result}</p>}
-      <p style={{ color: '#bdc3c7' }}>Or quick test popular sites below:</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', margin: '40px 0' }}>
-        <button onClick={() => checkSite('youtube.com')} disabled={loading} style={{ padding: '20px', fontSize: '1.2em', background: '#e74c3c', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>YouTube</button>
-        <button onClick={() => checkSite('tiktok.com')} disabled={loading} style={{ padding: '20px', fontSize: '1.2em', background: '#000000', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>TikTok</button>
-        <button onClick={() => checkSite('netflix.com')} disabled={loading} style={{ padding: '20px', fontSize: '1.2em', background: '#e50914', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Netflix</button>
-        <button onClick={() => checkSite('instagram.com')} disabled={loading} style={{ padding: '20px', fontSize: '1.2em', background: '#f09433', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Instagram</button>
-        <button onClick={() => checkSite('whatsapp.com')} disabled={loading} style={{ padding: '20px', fontSize: '1.2em', background: '#25d366', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>WhatsApp</button>
-        <button onClick={() => checkSite('discord.com')} disabled={loading} style={{ padding: '20px', fontSize: '1.2em', background: '#5865f2', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Discord</button>
-        <button onClick={() => checkSite('reddit.com')} disabled={loading} style={{ padding: '20px', fontSize: '1.2em', background: '#ff4500', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Reddit</button>
-        <button onClick={() => checkSite('chatgpt.com')} disabled={loading} style={{ padding: '20px', fontSize: '1.2em', background: '#00ff99', color: 'black', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>ChatGPT</button>
+
+      {/* Quick Links – stronger gradient + glow */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', marginBottom: '120px' }}>
+        <Link 
+          href="/categories" 
+          style={{ 
+            padding: '36px 28px', 
+            background: 'linear-gradient(135deg, #0d1117, #161b22, #0d1117)', 
+            borderRadius: '20px', 
+            textDecoration: 'none', 
+            color: '#ffffff', 
+            fontSize: '1.35rem', 
+            fontWeight: '700', 
+            textAlign: 'center', 
+            border: '1px solid rgba(0,212,255,0.25)', 
+            transition: 'all 0.4s ease', 
+            boxShadow: '0 12px 40px rgba(0,212,255,0.15)' 
+          }}
+          className="hover:shadow-[0_0_80px_rgba(0,212,255,0.6)] hover:scale-105 hover:border-[rgba(0,212,255,0.7)]"
+        >
+          Scan a Category<br />
+          <small style={{ color: '#94a3b8', display: 'block', marginTop: '12px', fontSize: '1rem' }}>
+            Social • AI • Streaming • Gaming
+          </small>
+        </Link>
+
+        <Link 
+          href="/outages" 
+          style={{ 
+            padding: '36px 28px', 
+            background: 'linear-gradient(135deg, #0d1117, #161b22, #0d1117)', 
+            borderRadius: '20px', 
+            textDecoration: 'none', 
+            color: '#ffffff', 
+            fontSize: '1.35rem', 
+            fontWeight: '700', 
+            textAlign: 'center', 
+            border: '1px solid rgba(0,212,255,0.25)', 
+            transition: 'all 0.4s ease', 
+            boxShadow: '0 12px 40px rgba(0,212,255,0.15)' 
+          }}
+          className="hover:shadow-[0_0_80px_rgba(0,212,255,0.6)] hover:scale-105 hover:border-[rgba(0,212,255,0.7)]"
+        >
+          Global Outages Dashboard<br />
+          <small style={{ color: '#94a3b8', display: 'block', marginTop: '12px', fontSize: '1rem' }}>
+            Live status of major sites
+          </small>
+        </Link>
+
+        <Link 
+          href="/my-ip" 
+          style={{ 
+            padding: '36px 28px', 
+            background: 'linear-gradient(135deg, #0d1117, #161b22, #0d1117)', 
+            borderRadius: '20px', 
+            textDecoration: 'none', 
+            color: '#ffffff', 
+            fontSize: '1.35rem', 
+            fontWeight: '700', 
+            textAlign: 'center', 
+            border: '1px solid rgba(0,212,255,0.25)', 
+            transition: 'all 0.4s ease', 
+            boxShadow: '0 12px 40px rgba(0,212,255,0.15)' 
+          }}
+          className="hover:shadow-[0_0_80px_rgba(0,212,255,0.6)] hover:scale-105 hover:border-[rgba(0,212,255,0.7)]"
+        >
+          Check Your IP Address<br />
+          <small style={{ color: '#94a3b8', display: 'block', marginTop: '12px', fontSize: '1rem' }}>
+            ISP, location & connection type
+          </small>
+        </Link>
+
+        <Link 
+          href="/popular-blocked" 
+          style={{ 
+            padding: '36px 28px', 
+            background: 'linear-gradient(135deg, #0d1117, #161b22, #0d1117)', 
+            borderRadius: '20px', 
+            textDecoration: 'none', 
+            color: '#ffffff', 
+            fontSize: '1.35rem', 
+            fontWeight: '700', 
+            textAlign: 'center', 
+            border: '1px solid rgba(0,212,255,0.25)', 
+            transition: 'all 0.4s ease', 
+            boxShadow: '0 12px 40px rgba(0,212,255,0.15)' 
+          }}
+          className="hover:shadow-[0_0_80px_rgba(0,212,255,0.6)] hover:scale-105 hover:border-[rgba(0,212,255,0.7)]"
+        >
+          Most Blocked Sites<br />
+          <small style={{ color: '#94a3b8', display: 'block', marginTop: '12px', fontSize: '1rem' }}>
+            Popular sites at work & school
+          </small>
+        </Link>
       </div>
 
-      <p style={{ color: '#bdc3c7', margin: '60px 0 20px' }}>Popular status checks:</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px', margin: '20px 0' }}>
-        <Link href="/status/youtube" style={{ padding: '12px', background: '#e74c3c', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>YouTube</Link>
-        <Link href="/status/netflix" style={{ padding: '12px', background: '#e50914', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Netflix</Link>
-        <Link href="/status/tiktok" style={{ padding: '12px', background: '#000000', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>TikTok</Link>
-        <Link href="/status/instagram" style={{ padding: '12px', background: '#f09433', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Instagram</Link>
-        <Link href="/status/discord" style={{ padding: '12px', background: '#5865f2', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Discord</Link>
-        <Link href="/status/chatgpt" style={{ padding: '12px', background: '#00ff99', color: 'black', borderRadius: '8px', textDecoration: 'none' }}>ChatGPT</Link>
-        <Link href="/status/reddit" style={{ padding: '12px', background: '#ff4500', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Reddit</Link>
-        <Link href="/status/spotify" style={{ padding: '12px', background: '#1db954', color: 'white', borderRadius: '8px', textDecoration: 'none' }}>Spotify</Link>
-      </div>
-      
-<div style={{ 
-  margin: '60px 0', 
-  padding: '30px', 
-  background: '#1c1c1c', 
-  borderRadius: '12px', 
-  minHeight: '280px', 
-  display: 'flex', 
-  alignItems: 'center', 
-  justifyContent: 'center', 
-  border: '2px dashed #444',
-  boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
-}}>
-  <p style={{ color: '#95a5a6', fontSize: '1.1em', textAlign: 'center' }}>
-    Ad Placeholder (AdSense ready — 728×90 leaderboard or responsive)<br />
-    Coming soon — homepage high RPM spot!
-  </p>
-</div>
-      <p style={{ color: '#bdc3c7', fontSize: '0.9em', marginTop: '40px' }}>
+      <p style={{ color: '#94a3b8', fontSize: '0.95em', marginTop: '40px' }}>
         Results are indicative only — advanced filtering may not be detected. Confidence based on checks.
-      </p>
-<section style={{ margin: '60px 0', padding: '20px', background: '#1c1c1c', borderRadius: '12px' }}>
-  <h2 style={{ fontSize: '1.6em', color: '#ecf0f1', marginBottom: '15px' }}>
-    Need to Access Blocked Sites?
-  </h2>
-  <p style={{ color: '#bdc3c7', marginBottom: '20px' }}>
-    For work, travel, or privacy, a trusted VPN can help. We recommend reliable options.
-  </p>
-  <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', maxWidth: '400px', margin: '0 auto' }}>
-    <a 
-      href="https://nordvpn.com/" // Replace with your real link
-      target="_blank" 
-      rel="noopener noreferrer"
-      style={{ padding: '12px', background: '#2ecc71', color: 'white', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold' }}
-    >
-      NordVPN (Fast & Secure)
-    </a>
-    <p style={{ fontSize: '0.8em', color: '#95a5a6' }}>
-      Affiliate disclosure: We may earn a commission if you sign up — at no extra cost to you.
-    </p>
-  </div>
-</section>
-<p style={{ color: '#bdc3c7', margin: '80px 0 20px', fontSize: '1.1em' }}>
-  Blocked at Work or School?
-</p>
-<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', margin: '0 0 60px 0' }}>
-  <Link href="/blocked-at-work/youtube" style={{ padding: '16px', background: '#e67e22', color: 'white', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold' }}>YouTube Blocked at Work?</Link>
-  <Link href="/blocked-at-school/youtube" style={{ padding: '16px', background: '#8e44ad', color: 'white', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold' }}>YouTube Blocked at School?</Link>
-  <Link href="/blocked-at-work/netflix" style={{ padding: '16px', background: '#e67e22', color: 'white', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold' }}>Netflix Blocked at Work?</Link>
-  <Link href="/blocked-at-school/netflix" style={{ padding: '16px', background: '#8e44ad', color: 'white', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold' }}>Netflix Blocked at School?</Link>
-  <Link href="/blocked-at-work/discord" style={{ padding: '16px', background: '#e67e22', color: 'white', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold' }}>Discord Blocked at Work?</Link>
-  <Link href="/blocked-at-school/discord" style={{ padding: '16px', background: '#8e44ad', color: 'white', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold' }}>Discord Blocked at School?</Link>
-</div>
-      <p style={{ marginTop: '50px' }}>
-        <Link href="/my-ip" style={{ padding: '15px 30px', fontSize: '1.1em', background: '#27ae60', color: 'white', textDecoration: 'none', borderRadius: '8px', cursor: 'pointer' }}>
-          What Is My IP Address?
-        </Link>
       </p>
     </div>
   );

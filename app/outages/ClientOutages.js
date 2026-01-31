@@ -22,16 +22,17 @@ export default function ClientOutages({ initialStatuses }) {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setStatuses(prev => 
-        prev.map(site => ({
-          ...site,
-          result: { ...site.result } // Force re-render for relative time
-        }))
-      );
-    }, 30000); // Recalculate "ago" every 30s
+      setStatuses(prev => prev.map(site => ({ ...site }))); // Trigger re-render for relative time
+    }, 30000); // Update "ago" every 30 seconds
 
     return () => clearInterval(interval);
   }, []);
+
+  // Sort: Down first, Error second, Online last
+  const sortedStatuses = [...statuses].sort((a, b) => {
+    const order = { down: 0, error: 1, online: 2 };
+    return order[a.result.status] - order[b.result.status];
+  });
 
   return (
     <div style={{ 
@@ -39,45 +40,45 @@ export default function ClientOutages({ initialStatuses }) {
       maxWidth: '1200px', 
       margin: '0 auto', 
       fontFamily: 'Arial, sans-serif', 
-      background: '#000000', 
-      color: '#ffffff', 
+      background: 'var(--bg-primary)', 
+      color: 'var(--text-primary)', 
       minHeight: '100vh' 
     }}>
-      <h1 style={{ fontSize: '2.8em', color: '#ecf0f1', textAlign: 'center', marginBottom: '40px' }}>
+      <h1 style={{ fontSize: '2.8em', color: 'var(--text-primary)', textAlign: 'center', marginBottom: '40px' }}>
         Global Website Outages Dashboard
       </h1>
 
-      <p style={{ textAlign: 'center', color: '#bdc3c7', marginBottom: '40px', fontSize: '1.1em' }}>
+      <p style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '40px', fontSize: '1.1em' }}>
         Live status of major sites (updated every 5 minutes). Online = reachable, Down/Error = potential outage.
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-        {statuses.map((site) => {
+        {sortedStatuses.map((site) => {
           const { status, code, error, timestamp } = site.result;
-          let bgColor = '#2ecc71'; // online
+          let bgColor = 'var(--success)'; // online
           let text = 'Online';
           let detail = `Last check: ${getRelativeTime(timestamp)}`;
 
           if (status === 'down') {
-            bgColor = '#e74c3c';
+            bgColor = 'var(--danger)';
             text = 'Down';
             detail = error ? `${error} • ${getRelativeTime(timestamp)}` : `Failed • ${getRelativeTime(timestamp)}`;
           } else if (status === 'error') {
-            bgColor = '#f1c40f';
+            bgColor = 'var(--warning)';
             text = 'Partial / Error';
             detail = `${code || 'Unknown'} • ${getRelativeTime(timestamp)}`;
           }
 
           return (
             <div key={site.name} style={{ 
-              background: '#1c1c1c', 
+              background: 'var(--card-bg)', 
               borderRadius: '12px', 
               padding: '20px', 
               boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
               border: `2px solid ${bgColor}`,
               textAlign: 'center'
             }}>
-              <h3 style={{ fontSize: '1.6em', color: '#ecf0f1', margin: '0 0 10px 0' }}>
+              <h3 style={{ fontSize: '1.6em', color: 'var(--text-primary)', margin: '0 0 10px 0' }}>
                 {site.name}
               </h3>
               <p style={{ 
@@ -88,7 +89,7 @@ export default function ClientOutages({ initialStatuses }) {
               }}>
                 {text}
               </p>
-              <p style={{ color: '#95a5a6', fontSize: '0.9em' }}>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9em' }}>
                 {detail}
               </p>
             </div>
@@ -96,8 +97,8 @@ export default function ClientOutages({ initialStatuses }) {
         })}
       </div>
 
-      <p style={{ textAlign: 'center', color: '#95a5a6', marginTop: '60px', fontSize: '0.9em' }}>
-        Some websites don't like our fast test method — the status is still accurate for most users.
+      <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: '60px', fontSize: '0.9em' }}>
+        Checks run server-side every 5 min. Relative time updates live every 30 seconds. Some sites may block quick checks — results indicative.
       </p>
 
       <p style={{ textAlign: 'center', marginTop: '40px' }}>
@@ -106,7 +107,7 @@ export default function ClientOutages({ initialStatuses }) {
           style={{ 
             padding: '15px 30px', 
             fontSize: '1.1em', 
-            background: '#27ae60', 
+            background: 'var(--success)', 
             color: 'white', 
             textDecoration: 'none', 
             borderRadius: '8px', 

@@ -28,6 +28,7 @@ const categoryData = {
     sites: [
       { name: 'ChatGPT', url: 'chatgpt.com' },
       { name: 'Gemini', url: 'gemini.google.com' },
+      { name: 'Grok', url: 'grok.com' },
       { name: 'Claude', url: 'claude.ai' },
       { name: 'Midjourney', url: 'midjourney.com' },
       { name: 'Runway', url: 'runwayml.com' },
@@ -35,12 +36,12 @@ const categoryData = {
       { name: 'Sora', url: 'sora.openai.com' },
       { name: 'Fathom', url: 'fathom.video' },
       { name: 'Saner.ai', url: 'saner.ai' },
-      { name: 'Semrush One', url: 'semrush.com' },
+      { name: 'Deepseek', url: 'deepseek.com' },
       { name: 'Wix AI', url: 'wix.com' },
       { name: 'Hostinger AI', url: 'hostinger.com' },
       { name: 'Squarespace AI', url: 'squarespace.com' },
       { name: 'Pythagora', url: 'pythagora.dev' },
-      { name: 'V0 by Vercel', url: 'v0.dev' },
+      
     ],
   },
   'streaming': {

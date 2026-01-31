@@ -1,6 +1,6 @@
 import ClientOutages from './ClientOutages';
 
-export const revalidate = 300; // 5 min cache — Vercel-safe, server only
+export const revalidate = 300; // 5 min cache — now in Server Component
 export const dynamic = 'force-dynamic';
 
 const sites = [

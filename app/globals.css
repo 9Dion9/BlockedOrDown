@@ -1,42 +1,106 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-primary: #000000;
+  --bg-secondary: #0d1117;
+  --bg-tertiary: #161b22;
+  --text-primary: #e6edf3;
+  --text-secondary: #c9d1d9;
+  --text-muted: #8b949e;
+  --border: #30363d;
+  --blue-accent: #58a6ff;
+  --button-bg: #238636;
+  --button-text: #ffffff;
+  --success: #00ff9d;
+  --danger: #ff4d4d;
+  --warning: #ffa657;
+  --glow: rgba(88, 166, 255, 0.15);
+  --ad-bg: #0d1117;
+  --ad-text: #8b949e;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  margin: 0;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Smooth glow & transitions */
+* {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Card style with glow */
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px var(--glow);
+}
+
+/* Buttons with hover glow */
+button, a.button-like {
+  background: var(--blue-accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+button:hover, a.button-like:hover {
+  box-shadow: 0 0 20px var(--glow);
+  transform: translateY(-1px);
+}
+
+/* Input glow */
+input {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: 12px;
+}
+
+input:focus {
+  border-color: var(--blue-accent);
+  box-shadow: 0 0 0 3px var(--glow);
+}
+
+/* ──────────────────────────────────────────────
+   Responsive logo & nav alignment (pure CSS, no Tailwind needed)
+   ────────────────────────────────────────────── */
+
+@media (max-width: 767px) {
+  .logo {
+    align-self: center !important;
+  }
+  nav {
+    justify-content: center !important;
   }
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+@media (min-width: 768px) {
+  .logo {
+    align-self: flex-start !important;
+  }
+  nav {
+    justify-content: center !important;
+    flex: 1 !important;
+  }
+}
+/* Responsive logo alignment – pure CSS */
+@media (max-width: 767px) {
+  .logo {
+    align-self: center !important;
+  }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+@media (min-width: 768px) {
+  .logo {
+    align-self: flex-start !important;
   }
 }

@@ -41,19 +41,19 @@ export default function ClientStatusContent({ site, siteName }) {
       margin: '0 auto', 
       textAlign: 'center', 
       fontFamily: 'Arial, sans-serif', 
-      background: '#000000', 
-      color: '#ffffff', 
+      background: 'var(--bg-primary)', 
+      color: 'var(--text-primary)', 
       minHeight: '100vh' 
     }}>
-      <h1 style={{ fontSize: '2.8em', color: '#ecf0f1' }}>
+      <h1 style={{ fontSize: '2.4em', color: 'var(--text-primary)' }}>
         Is {siteName} Down or Blocked?
       </h1>
 
-      <p style={{ fontSize: '1.3em', color: '#bdc3c7', margin: '20px 0 10px' }}>
+      <p style={{ fontSize: '1.2em', color: 'var(--text-secondary)', margin: '20px 0 10px' }}>
         Check if {siteName} is down globally or blocked on your network (work/school/firewall).
       </p>
 
-      <p style={{ fontSize: '1.1em', color: '#95a5a6', margin: '0 0 40px 0' }}>
+      <p style={{ fontSize: '1.0em', color: 'var(--text-muted)', margin: '0 0 40px 0' }}>
         Quick test for {siteName} below — or use the full checker.
       </p>
 
@@ -61,9 +61,9 @@ export default function ClientStatusContent({ site, siteName }) {
         <button 
           onClick={() => window.location.href = `/?url=${site}.com`}
           style={{ 
-            padding: '15px 40px', 
-            fontSize: '1.2em', 
-            background: '#e74c3c', 
+            padding: '12px 32px', 
+            fontSize: '1.1em', 
+            background: 'var(--danger)', 
             color: 'white', 
             border: 'none', 
             borderRadius: '8px', 
@@ -74,26 +74,26 @@ export default function ClientStatusContent({ site, siteName }) {
         </button>
       </div>
 
-      <p style={{ color: '#95a5a6', fontSize: '0.9em', margin: '0 0 60px 0' }}>
+      <p style={{ color: 'var(--text-muted)', fontSize: '0.85em', margin: '0 0 60px 0' }}>
         Results are indicative only — advanced filtering may not be detected. Confidence based on checks.
       </p>
 
       <section style={{ margin: '0 0 60px 0', textAlign: 'left' }}>
-        <h2 style={{ fontSize: '1.8em', color: '#ecf0f1', marginBottom: '20px' }}>
+        <h2 style={{ fontSize: '1.6em', color: 'var(--text-primary)', marginBottom: '20px' }}>
           Frequently Asked Questions about {siteName}
         </h2>
 
         <details style={{ 
           margin: '15px 0', 
           padding: '15px', 
-          background: '#1c1c1c', 
+          background: 'var(--card-bg)', 
           borderRadius: '8px', 
-          border: '1px solid #333' 
+          border: '1px solid var(--border)' 
         }}>
-          <summary style={{ fontWeight: 'bold', cursor: 'pointer', color: '#bdc3c7' }}>
+          <summary style={{ fontWeight: 'bold', cursor: 'pointer', color: 'var(--text-secondary)' }}>
             Is {siteName} down right now?
           </summary>
-          <p style={{ color: '#95a5a6', marginTop: '10px' }}>
+          <p style={{ color: 'var(--text-muted)', marginTop: '10px' }}>
             Use the checker above — it tests reachability from your network and our global probe.
           </p>
         </details>
@@ -101,14 +101,14 @@ export default function ClientStatusContent({ site, siteName }) {
         <details style={{ 
           margin: '15px 0', 
           padding: '15px', 
-          background: '#1c1c1c', 
+          background: 'var(--card-bg)', 
           borderRadius: '8px', 
-          border: '1px solid #333' 
+          border: '1px solid var(--border)' 
         }}>
-          <summary style={{ fontWeight: 'bold', cursor: 'pointer', color: '#bdc3c7' }}>
+          <summary style={{ fontWeight: 'bold', cursor: 'pointer', color: 'var(--text-secondary)' }}>
             Why is {siteName} blocked at work or school?
           </summary>
-          <p style={{ color: '#95a5a6', marginTop: '10px' }}>
+          <p style={{ color: 'var(--text-muted)', marginTop: '10px' }}>
             Workplaces and schools often block social media, streaming, or entertainment sites for productivity or bandwidth reasons using firewall, DNS filtering, or proxy rules.
           </p>
         </details>
@@ -116,20 +116,20 @@ export default function ClientStatusContent({ site, siteName }) {
         <details style={{ 
           margin: '15px 0', 
           padding: '15px', 
-          background: '#1c1c1c', 
+          background: 'var(--card-bg)', 
           borderRadius: '8px', 
-          border: '1px solid #333' 
+          border: '1px solid var(--border)' 
         }}>
-          <summary style={{ fontWeight: 'bold', cursor: 'pointer', color: '#bdc3c7' }}>
+          <summary style={{ fontWeight: 'bold', cursor: 'pointer', color: 'var(--text-secondary)' }}>
             How accurate is the check for {siteName}?
           </summary>
-          <p style={{ color: '#95a5a6', marginTop: '10px' }}>
+          <p style={{ color: 'var(--text-muted)', marginTop: '10px' }}>
             High for common blocks/outages — medium for sophisticated filtering. Results are indicative; try direct access or VPN if unsure.
           </p>
         </details>
       </section>
 
-      <p style={{ margin: '60px 0 20px', color: '#bdc3c7', textAlign: 'center' }}>
+      <p style={{ margin: '60px 0 20px', color: 'var(--text-secondary)', textAlign: 'center' }}>
         More specific checks for {siteName}:
       </p>
       <div style={{ 
@@ -142,12 +142,12 @@ export default function ClientStatusContent({ site, siteName }) {
         <Link 
           href={`/blocked-at-work/${site}`}
           style={{ 
-            padding: '14px 32px', 
+            padding: '12px 24px', 
             background: '#e67e22', 
             color: 'white', 
             borderRadius: '10px', 
             textDecoration: 'none', 
-            fontSize: '1.1em',
+            fontSize: '1.0em',
             fontWeight: 'bold',
             transition: 'background 0.2s'
           }}
@@ -157,12 +157,12 @@ export default function ClientStatusContent({ site, siteName }) {
         <Link 
           href={`/blocked-at-school/${site}`}
           style={{ 
-            padding: '14px 32px', 
+            padding: '12px 24px', 
             background: '#8e44ad', 
             color: 'white', 
             borderRadius: '10px', 
             textDecoration: 'none', 
-            fontSize: '1.1em',
+            fontSize: '1.0em',
             fontWeight: 'bold',
             transition: 'background 0.2s'
           }}
@@ -175,16 +175,16 @@ export default function ClientStatusContent({ site, siteName }) {
       <div style={{ 
         margin: '0 0 60px 0', 
         padding: '30px', 
-        background: '#1a1a1a', 
+        background: 'var(--card-bg)', 
         borderRadius: '12px', 
         minHeight: '280px', 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        border: '2px dashed #333',
+        border: '2px dashed var(--border)',
         boxShadow: '0 4px 16px rgba(0,0,0,0.6)'
       }}>
-        <p style={{ color: '#7f8c8d', fontSize: '1.1em', textAlign: 'center' }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '1.0em', textAlign: 'center' }}>
           Ad Placeholder (AdSense ready — 300×250 or responsive)<br />
           Coming soon — high RPM spot!
         </p>
@@ -194,9 +194,9 @@ export default function ClientStatusContent({ site, siteName }) {
         <Link 
           href="/" 
           style={{ 
-            padding: '15px 30px', 
-            fontSize: '1.1em', 
-            background: '#27ae60', 
+            padding: '12px 24px', 
+            fontSize: '1.0em', 
+            background: 'var(--success)', 
             color: 'white', 
             textDecoration: 'none', 
             borderRadius: '8px', 
