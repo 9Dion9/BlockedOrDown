@@ -4,19 +4,19 @@
 
 :root {
   --bg-primary: #000000;
-  --bg-secondary: #0d1117;
-  --bg-tertiary: #161b22;
+  --bg-secondary: #0d1117; /* GitHub-like deep dark for cards */
+  --bg-tertiary: #161b22;   /* slightly lighter for depth */
   --text-primary: #e6edf3;
   --text-secondary: #c9d1d9;
   --text-muted: #8b949e;
   --border: #30363d;
-  --blue-accent: #58a6ff;
-  --button-bg: #238636;
+  --blue-accent: #58a6ff;   /* glowing cyan/blue for logo/buttons */
+  --button-bg: #238636;     /* neon green for success buttons */
   --button-text: #ffffff;
   --success: #00ff9d;
   --danger: #ff4d4d;
   --warning: #ffa657;
-  --glow: rgba(88, 166, 255, 0.15);
+  --glow: rgba(88, 166, 255, 0.15); /* subtle cyan glow */
   --ad-bg: #0d1117;
   --ad-text: #8b949e;
 }
@@ -70,37 +70,32 @@ input:focus {
   box-shadow: 0 0 0 3px var(--glow);
 }
 
-/* ──────────────────────────────────────────────
-   Responsive logo & nav alignment (pure CSS, no Tailwind needed)
-   ────────────────────────────────────────────── */
+/* Responsive media queries – for mobile fixes */
+@media (max-width: 768px) {
+  /* Smaller padding on mobile */
+  div[style*="padding"] {
+    padding: '80px 12px 60px' !important;
+  }
 
-@media (max-width: 767px) {
-  .logo {
-    align-self: center !important;
+  h1 {
+    font-size: '3rem' !important;
   }
-  nav {
-    justify-content: center !important;
-  }
-}
 
-@media (min-width: 768px) {
-  .logo {
-    align-self: flex-start !important;
+  p {
+    font-size: '1.2rem' !important;
   }
-  nav {
-    justify-content: center !important;
-    flex: 1 !important;
-  }
-}
-/* Responsive logo alignment – pure CSS */
-@media (max-width: 767px) {
-  .logo {
-    align-self: center !important;
-  }
-}
 
-@media (min-width: 768px) {
-  .logo {
-    align-self: flex-start !important;
+  input {
+    font-size: '1.1rem' !important;
+  }
+
+  button {
+    font-size: '1.1rem' !important;
+  }
+
+  /* Smaller cards on mobile */
+  .card {
+    min-width: 'auto' !important;
+    max-width: '100%' !important;
   }
 }
