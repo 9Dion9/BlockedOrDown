@@ -4,19 +4,19 @@
 
 :root {
   --bg-primary: #000000;
-  --bg-secondary: #0d1117; /* GitHub-like deep dark for cards */
-  --bg-tertiary: #161b22;   /* slightly lighter for depth */
+  --bg-secondary: #0d1117;
+  --bg-tertiary: #161b22;
   --text-primary: #e6edf3;
   --text-secondary: #c9d1d9;
   --text-muted: #8b949e;
   --border: #30363d;
-  --blue-accent: #58a6ff;   /* glowing cyan/blue for logo/buttons */
-  --button-bg: #238636;     /* neon green for success buttons */
+  --blue-accent: #58a6ff;
+  --button-bg: #238636;
   --button-text: #ffffff;
   --success: #00ff9d;
   --danger: #ff4d4d;
   --warning: #ffa657;
-  --glow: rgba(88, 166, 255, 0.15); /* subtle cyan glow */
+  --glow: rgba(88, 166, 255, 0.15);
   --ad-bg: #0d1117;
   --ad-text: #8b949e;
 }
@@ -28,12 +28,79 @@ body {
   transition: background 0.3s, color 0.3s;
 }
 
-/* Smooth glow & transitions */
+/* Reset and base mobile fixes */
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
 * {
+  box-sizing: border-box;
   transition: background-color 0.3s, color 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
 
-/* Card style with glow */
+/* Responsive mobile adjustments */
+@media (max-width: 767px) {
+  body {
+    font-size: 15px !important;
+  }
+
+  h1 {
+    font-size: 2.4rem !important;
+    line-height: 1.1 !important;
+  }
+
+  h2 {
+    font-size: 1.8rem !important;
+  }
+
+  p {
+    font-size: 1rem !important;
+  }
+
+  input, button {
+    font-size: 1rem !important;
+    padding: 14px 20px !important;
+  }
+
+  .pill-btn {
+    padding: 8px 16px !important;
+    font-size: 0.85rem !important;
+  }
+
+  header > div {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  nav {
+    flex-direction: column !important;
+    width: 100% !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  nav a {
+    width: 100% !important;
+    text-align: center !important;
+  }
+
+  main > div {
+    padding: 60px 12px 60px !important;
+  }
+
+  .card, .result-row {
+    padding: 12px 16px !important;
+    font-size: 0.95rem !important;
+  }
+
+  .glow-title {
+    font-size: 2.8rem !important;
+  }
+}
+
+/* Rest of your existing styles */
 .card {
   background: var(--bg-secondary);
   border: 1px solid var(--border);
@@ -41,7 +108,6 @@ body {
   box-shadow: 0 4px 20px var(--glow);
 }
 
-/* Buttons with hover glow */
 button, a.button-like {
   background: var(--blue-accent);
   color: white;
@@ -57,7 +123,6 @@ button:hover, a.button-like:hover {
   transform: translateY(-1px);
 }
 
-/* Input glow */
 input {
   background: var(--bg-tertiary);
   border: 1px solid var(--border);
@@ -68,34 +133,4 @@ input {
 input:focus {
   border-color: var(--blue-accent);
   box-shadow: 0 0 0 3px var(--glow);
-}
-
-/* Responsive media queries – for mobile fixes */
-@media (max-width: 768px) {
-  /* Smaller padding on mobile */
-  div[style*="padding"] {
-    padding: '80px 12px 60px' !important;
-  }
-
-  h1 {
-    font-size: '3rem' !important;
-  }
-
-  p {
-    font-size: '1.2rem' !important;
-  }
-
-  input {
-    font-size: '1.1rem' !important;
-  }
-
-  button {
-    font-size: '1.1rem' !important;
-  }
-
-  /* Smaller cards on mobile */
-  .card {
-    min-width: 'auto' !important;
-    max-width: '100%' !important;
-  }
 }
