@@ -10,8 +10,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta name="google-site-verification" content="PApjHSHNtuFdG6k75aPOS20mSIJ9gs1XEWYdCBXgSNo" />
+        {/* Add any other <head> tags here if needed, like title, favicon, etc. */}
+      </head>
       <body className="min-h-screen flex flex-col bg-[var(--bg-primary)] text-[var(--text-primary)]" style={{ fontFamily: "'Inter var', 'Inter', system-ui, sans-serif" }}>
-        {/* Top Navigation Bar – compact on mobile */}
         <header style={{ 
           background: 'rgba(13, 17, 23, 0.92)', 
           backdropFilter: 'blur(12px)',
