@@ -1,154 +1,253 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
-export default function MyIP() {
+export default function MyIpPage() {
   const [ipData, setIpData] = useState(null);
-  const [seenIPv4, setSeenIPv4] = useState('');
-  const [seenIPv6, setSeenIPv6] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
+
+  const fetchIpData = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const ipv4Res = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
+      if (!ipv4Res.ok) throw new Error('Failed to get IPv4');
+      const ipv4Json = await ipv4Res.json();
+      const ipv4 = ipv4Json.ip || 'Not detected';
+
+      let ipv6 = 'Not detected';
+      try {
+        const ipv6Res = await fetch('https://api64.ipify.org?format=json', { cache: 'no-store' });
+        if (ipv6Res.ok) {
+          const ipv6Json = await ipv6Res.json();
+          ipv6 = ipv6Json.ip;
+        }
+      } catch {}
+
+      const geoRes = await fetch(`https://ipapi.co/${ipv4}/json/`, { cache: 'no-store' });
+      const geo = geoRes.ok ? await geoRes.json() : {};
+
+      setIpData({
+        ipv4,
+        ipv6,
+        isp: geo.org || geo.asn || 'Unknown',
+        city: geo.city || 'Unknown',
+        region: geo.region || 'Unknown',
+        country: geo.country_name || geo.country || 'Unknown'
+      });
+    } catch (err) {
+      console.error('My IP fetch error:', err);
+      setError(err.message || 'Failed to fetch IP data. Try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Main details from ipapi.co
-        const res = await fetch('https://ipapi.co/json/');
-        const data = await res.json();
-        setIpData(data);
-
-        // "What others see" IPv4 from ipify
-        const ipv4Res = await fetch('https://api.ipify.org?format=json');
-        const ipv4Data = await ipv4Res.json();
-        setSeenIPv4(ipv4Data.ip || '');
-
-        // Reliable IPv6 from ipify v6 endpoint
-        try {
-          const ipv6Res = await fetch('https://api6.ipify.org?format=json');
-          const ipv6Data = await ipv6Res.json();
-          setSeenIPv6(ipv6Data.ip || '');
-        } catch {
-          setSeenIPv6('');
-        }
-
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to load IP info — try again or check connection.');
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    fetchIpData();
   }, []);
 
-  const hasUniqueIPv4 = ipData?.ip && !ipData.ip.includes(':');
+  const retry = () => fetchIpData();
 
   return (
-    <div style={{ 
-      padding: '40px 20px', 
-      maxWidth: '800px', 
-      margin: '0 auto', 
-      textAlign: 'center', 
-      fontFamily: 'Arial, sans-serif', 
-      background: 'var(--bg-primary)', 
-      color: 'var(--text-primary)', 
-      minHeight: '100vh' 
+    <div style={{
+      padding: 'clamp(80px, 10vw, 120px) clamp(16px, 4vw, 24px) clamp(60px, 8vw, 100px)',
+      margin: '0',
+      textAlign: 'left',
+      fontFamily: 'Arial, sans-serif',
+      background: 'var(--bg-secondary)',
+      color: '#ffffff',
+      minHeight: '100vh',
+      backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(0, 212, 255, 0.12) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(0, 212, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
+      overflowX: 'hidden'
     }}>
-      <h1 style={{ fontSize: '2.4em', color: 'var(--text-primary)' }}>
-        What Is My IP Address?
-      </h1>
-      <p style={{ fontSize: '1.2em', color: 'var(--text-secondary)', margin: '20px 0' }}>
-        Your public IP, ISP, location, and connection details (no data stored).
-      </p>
 
-      <div style={{ 
-        background: 'var(--card-bg)', 
-        padding: '30px', 
-        borderRadius: '12px', 
-        margin: '40px 0', 
-        fontSize: '1.2em', 
-        lineHeight: '1.8', 
-        boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-        border: '1px solid var(--border)' 
-      }}>
-        {loading && <p style={{ color: 'var(--text-secondary)' }}>Loading your IP info...</p>}
-        {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
-        {ipData && (
-          <>
-            {/* Main Public IP */}
-            <p style={{ fontSize: '1.4em', marginBottom: '20px' }}>
-              <strong>Main Public IP (what most sites see):</strong>{' '}
-              <span style={{ color: 'var(--success)', fontWeight: 'bold' }}>
-                {seenIPv4 || 'Loading...'}
-              </span>
+      {loading ? (
+        <div style={{ margin: '80px 0' }}>
+          <div style={{
+            width: '50px',
+            height: '50px',
+            border: '5px solid rgba(0,212,255,0.2)',
+            borderTop: '5px solid #00d4ff',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 0 20px 0'
+          }} />
+          <p style={{ fontSize: '1.2rem', color: '#c9d1d9' }}>Fetching your IP...</p>
+        </div>
+      ) : error ? (
+        <div style={{ margin: '80px 0' }}>
+          <p style={{ fontSize: '1.3rem', color: '#ff4d4d', marginBottom: '24px' }}>
+            {error}
+          </p>
+          <button
+            onClick={retry}
+            style={{
+              padding: '12px 28px',
+              fontSize: '1rem',
+              background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '9999px',
+              cursor: 'pointer',
+              boxShadow: '0 0 30px rgba(0,212,255,0.5)',
+              transition: 'all 0.3s ease'
+            }}
+            className="hover:shadow-[0_0_50px_rgba(0,212,255,0.7)] hover:scale-105"
+          >
+            Try Again
+          </button>
+        </div>
+      ) : (
+        <>
+          <div style={{
+            maxWidth: 'clamp(400px, 90vw, 800px)',
+            margin: '0 auto 60px auto',
+            padding: 'clamp(20px, 5vw, 32px)',
+            background: 'rgba(13,17,23,0.75)',
+            borderRadius: '20px',
+            border: '1px solid rgba(0,212,255,0.25)',
+            boxShadow: '0 8px 32px rgba(0,212,255,0.25)',
+            backdropFilter: 'blur(12px)',
+            transition: 'all 0.3s ease'
+          }} className="hover:shadow-[0_0_60px_rgba(0,212,255,0.5)]">
+            <p style={{
+              color: '#00d4ff',
+              fontSize: '1.3rem',
+              fontWeight: '600',
+              marginBottom: '20px',
+              textAlign: 'center' // centered title inside box
+            }}>
+              My IP Address is:
             </p>
 
-            {/* IPv4 & IPv6 separated */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '40px', marginBottom: '20px' }}>
-              <div style={{ textAlign: 'center' }}>
-                <strong style={{ color: 'var(--text-primary)' }}>IPv4:</strong>
-                <p style={{ fontSize: '1.1em', color: seenIPv4 ? 'var(--success)' : 'var(--text-muted)' }}>
-                  {seenIPv4 || 'Not detected'}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+              <div>
+                <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '6px' }}>
+                  IPv4
+                </p>
+                <p style={{
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold',
+                  color: '#ffffff',
+                  wordBreak: 'break-all'
+                }}>
+                  {ipData.ipv4 || 'Not detected'}
                 </p>
               </div>
-              <div style={{ textAlign: 'center' }}>
-                <strong style={{ color: 'var(--text-primary)' }}>IPv6:</strong>
-                <p style={{ fontSize: '1.1em', color: seenIPv6 ? 'var(--success)' : 'var(--text-muted)' }}>
-                  {seenIPv6 || 'Not detected'}
+
+              <div>
+                <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '6px' }}>
+                  IPv6
+                </p>
+                <p style={{
+                  fontSize: '1.1rem',
+                  fontWeight: 'bold',
+                  color: '#ffffff',
+                  wordBreak: 'break-all',
+                  hyphens: 'auto'
+                }}>
+                  {ipData.ipv6 || 'Not detected'}
                 </p>
               </div>
             </div>
 
-            {/* Additional Info Box */}
-            <div style={{ 
-              background: 'var(--bg-secondary)', 
-              padding: '20px', 
-              borderRadius: '10px', 
-              marginTop: '20px', 
-              border: '1px solid var(--border)' 
+            <div style={{
+              borderTop: '1px solid rgba(255,255,255,0.08)',
+              paddingTop: '16px'
             }}>
-              <p style={{ margin: '8px 0', color: 'var(--text-secondary)' }}>
-                <strong>ISP:</strong> {ipData.org || 'N/A'}
+              <p style={{
+                color: '#00d4ff',
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                marginBottom: '12px'
+              }}>
+                My IP Information:
               </p>
-              <p style={{ margin: '8px 0', color: 'var(--text-secondary)' }}>
-                <strong>Location:</strong> {ipData.city ? `${ipData.city}, ${ipData.region}, ${ipData.country_name}` : 'N/A'}
-              </p>
-              <p style={{ margin: '8px 0', color: 'var(--text-secondary)' }}>
-                <strong>Connection Type:</strong> {ipData.org?.toLowerCase().includes('mobile') ? 'Likely mobile' : 'Likely residential/fiber'}
-              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '12px' }}>
+                  <span style={{ color: '#94a3b8', minWidth: '70px' }}>ISP:</span>
+                  <span style={{ color: '#c9d1d9', fontWeight: '500' }}>
+                    {ipData.isp || 'Unknown'}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '12px' }}>
+                  <span style={{ color: '#94a3b8', minWidth: '70px' }}>City:</span>
+                  <span style={{ color: '#c9d1d9', fontWeight: '500' }}>
+                    {ipData.city || 'Unknown'}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '12px' }}>
+                  <span style={{ color: '#94a3b8', minWidth: '70px' }}>Region:</span>
+                  <span style={{ color: '#c9d1d9', fontWeight: '500' }}>
+                    {ipData.region || 'Unknown'}
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '12px' }}>
+                  <span style={{ color: '#94a3b8', minWidth: '70px' }}>Country:</span>
+                  <span style={{ color: '#c9d1d9', fontWeight: '500' }}>
+                    {ipData.country || 'Unknown'}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            {!hasUniqueIPv4 && seenIPv4 && (
-              <p style={{ color: 'var(--warning)', fontSize: '1em', marginTop: '20px' }}>
-                Your ISP uses shared/CGNAT IPv4 (common on German fiber connections like Glasfaser). This IP is shared among users.
+            <div style={{ marginTop: '24px', textAlign: 'center' }}>
+              <p style={{ color: '#ff4d4d', fontSize: '1.1rem', fontWeight: '600' }}>
+                Your location may be exposed!
               </p>
-            )}
-          </>
-        )}
-      </div>
+              <button
+                style={{
+                  padding: '12px 32px',
+                  fontSize: '1rem',
+                  background: '#ff4d4d',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  margin: '16px auto 0 auto',
+                  display: 'block',
+                  boxShadow: '0 4px 16px rgba(255,77,77,0.3)'
+                }}
+              >
+                HIDE MY IP ADDRESS NOW
+              </button>
+            </div>
+          </div>
 
-      {/* Ad Placeholder */}
-      <div style={{ 
-        margin: '50px 0', 
-        padding: '30px', 
-        background: 'var(--card-bg)', 
-        borderRadius: '12px', 
-        minHeight: '280px', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        border: '2px dashed var(--border)',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.5)'
-      }}>
-        <p style={{ color: 'var(--text-muted)', fontSize: '1.1em', textAlign: 'center' }}>
-          Ad Placeholder (AdSense ready — 300×250 or responsive)<br />
-          Coming soon — high RPM spot!
-        </p>
-      </div>
+          <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '40px', textAlign: 'center' }}>
+            Data fetched securely from public APIs. Refreshes on reload. No logs stored.
+          </p>
 
-      <p style={{ color: 'var(--text-muted)', fontSize: '0.9em' }}>
-        Data from free public APIs (ipapi.co + ipify.org). Matches what most "what's my IP" sites show.
-      </p>
+          <p style={{ textAlign: 'center' }}>
+            <Link
+              href="/"
+              style={{
+                padding: '14px 32px',
+                fontSize: '1.1em',
+                background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
+                color: 'white',
+                textDecoration: 'none',
+                borderRadius: '9999px',
+                cursor: 'pointer',
+                boxShadow: '0 0 40px rgba(0,212,255,0.5)',
+                transition: 'all 0.3s ease'
+              }}
+              className="hover:shadow-[0_0_70px_rgba(0,212,255,0.7)] hover:scale-105"
+            >
+              Back to Homepage
+            </Link>
+          </p>
+        </>
+      )}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+// app/api/check/route.js
 import { NextResponse } from 'next/server';
 
 export async function GET(request) {
@@ -8,30 +9,51 @@ export async function GET(request) {
     return NextResponse.json({ error: 'No URL provided' }, { status: 400 });
   }
 
-  let cleanUrl;
-  try {
-    cleanUrl = new URL(url.startsWith('http') ? url : 'https://' + url);
-  } catch {
-    return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
+  // Clean and normalize URL
+  let cleanUrl = url.trim();
+  if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+    cleanUrl = 'https://' + cleanUrl;
   }
 
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    // Try multiple common resources to avoid false negatives
+    const resources = [
+      `${cleanUrl}/favicon.ico`,
+      `${cleanUrl}/`,
+      `${cleanUrl}/robots.txt`
+    ];
 
-    const response = await fetch(cleanUrl.origin + '/favicon.ico', {
-      signal: controller.signal,
-      headers: { 'User-Agent': 'BlockedOrDown-Bot/1.0' },
-    });
+    for (const testUrl of resources) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout
 
-    clearTimeout(timeout);
+      try {
+        const res = await fetch(testUrl, {
+          method: 'HEAD',
+          mode: 'no-cors',
+          cache: 'no-store',
+          signal: controller.signal
+        });
 
-    if (response.ok) {
-      return NextResponse.json({ serverStatus: 'reachable', httpStatus: response.status });
-    } else {
-      return NextResponse.json({ serverStatus: 'error', httpStatus: response.status });
+        clearTimeout(timeoutId);
+
+        // no-cors often returns status 0 or opaque response
+        if (res.ok || res.status === 0 || res.type === 'opaque') {
+          return NextResponse.json({ serverStatus: 'reachable' });
+        }
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          console.log(`Timeout on ${testUrl}`);
+        }
+      } finally {
+        clearTimeout(timeoutId);
+      }
     }
-  } catch (err) {
-    return NextResponse.json({ serverStatus: 'unreachable', error: err.name });
+
+    // All attempts failed
+    return NextResponse.json({ serverStatus: 'unreachable' });
+  } catch (error) {
+    console.error('Check API error:', error);
+    return NextResponse.json({ serverStatus: 'unreachable', error: error.message });
   }
 }
