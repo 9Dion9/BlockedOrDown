@@ -126,22 +126,38 @@ export default function RootLayout({ children }) {
           {children}
         </main>
 
-        {/* Footer */}
-        <footer style={{
-          padding: '2px',
-          background: 'var(--bg-secondary)',
-          textAlign: 'center',
-          fontSize: '0.7em',
-          color: 'var(--text-muted)',
-          borderTop: '1px solid var(--border)',
-        }}>
-          <Link href="/impressum" style={{ color: 'var(--text-secondary)', margin: '0 12px', textDecoration: 'none' }}>
-            Impressum
-          </Link>
-          <Link href="/datenschutz" style={{ color: 'var(--text-secondary)', margin: '0 12px', textDecoration: 'none' }}>
-            Datenschutzerklärung
-          </Link>
-        </footer>
+{/* Footer */}
+<footer style={{
+  padding: '2px',
+  background: 'var(--bg-secondary)',
+  textAlign: 'center',
+  fontSize: '0.7em',
+  color: 'var(--text-muted)',
+  borderTop: '1px solid var(--border)',
+}}>
+    <Link href="/about" style={{ color: '#00d4ff', margin: '0 12px', textDecoration: 'none' }}>
+    About
+  </Link>
+  
+  <Link href="/privacy" style={{ color: '#00d4ff', margin: '0 12px', textDecoration: 'none' }}>
+    Privacy Policy
+  </Link>
+  <Link href="/terms" style={{ color: '#00d4ff', margin: '0 12px', textDecoration: 'none' }}>
+    Terms of Use
+  </Link>
+  <Link href="/methodology" style={{ color: '#00d4ff', margin: '0 12px', textDecoration: 'none' }}>
+    How It Works
+  </Link>
+  <Link href="/contact" style={{ color: '#00d4ff', margin: '0 12px', textDecoration: 'none' }}>
+    Contact
+  </Link>
+  <Link href="/impressum" style={{ color: '#00d4ff', margin: '0 12px', textDecoration: 'none' }}>
+    Impressum
+  </Link>
+  <Link href="/datenschutz" style={{ color: '#00d4ff', margin: '0 12px', textDecoration: 'none' }}>
+    Datenschutzerklärung
+  </Link>
+      </footer>
       </body>
     </html>
   );

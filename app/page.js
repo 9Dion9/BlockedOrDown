@@ -5,12 +5,11 @@ import Link from 'next/link';
 
 export default function Home() {
   const [url, setUrl] = useState('');
-  const [result, setResult] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const checkSite = async () => {
+  const checkSite = () => {
     if (!url.trim()) {
-      setResult('Please enter a website.');
+      alert('Please enter a website.');
       return;
     }
 
@@ -19,72 +18,24 @@ export default function Home() {
       cleanInput = 'https://' + cleanInput;
     }
 
+    // Extract domain for slug (e.g., https://www.youtube.com/watch?v=abc → youtube-com)
+    const domain = cleanInput
+      .replace(/^https?:\/\//, '') // remove protocol
+      .replace(/^www\./, '')       // remove www
+      .split('/')[0]               // take first part (domain)
+      .replace(/\./g, '-');        // replace dots with hyphens
     setLoading(true);
-    setResult(`Checking ${cleanInput}...`);
+// ... cleaning logic
+const siteSlug = cleanInput
+  .replace(/^https?:\/\//, '')
+  .replace(/^www\./, '')
+  .split('/')[0]
+  .split('?')[0] // remove query params
+  .replace(/\./g, '-');
+window.location.href = `/status/${siteSlug}`;
 
-    // Improved client-side check: try multiple resources with no-cors fetch
-    const clientPromise = new Promise((resolve) => {
-      const resources = ['', '/favicon.ico', '/robots.txt'];
-      let success = false;
-      let attempts = 0;
-
-      const tryResource = () => {
-        if (success || attempts >= resources.length) {
-          resolve(success ? 'client_ok' : 'client_fail');
-          return;
-        }
-
-        fetch(cleanInput + resources[attempts] + '?' + Date.now(), {
-          method: 'HEAD',
-          mode: 'no-cors',
-          cache: 'no-store'
-        })
-        .then(() => {
-          success = true;
-          resolve('client_ok');
-        })
-        .catch(() => {
-          attempts++;
-          tryResource();
-        });
-      };
-
-      tryResource();
-    });
-
-    try {
-      const serverResponse = await fetch(`/api/check?url=${encodeURIComponent(cleanInput)}`);
-      const serverData = await serverResponse.json();
-
-      const clientResult = await clientPromise;
-
-      let finalMessage = '';
-      let confidence = '';
-
-      if (serverData.serverStatus === 'reachable') {
-        if (clientResult === 'client_ok') {
-          finalMessage = '✅ Reachable everywhere — not down or blocked.';
-          confidence = 'High confidence';
-        } else {
-          finalMessage = '⚠️ Online globally, but possibly blocked on your network.';
-          confidence = 'Medium confidence';
-        }
-      } else {
-        if (clientResult === 'client_fail') {
-          finalMessage = '❌ Unreachable — likely global outage or down for everyone.';
-          confidence = 'Medium confidence';
-        } else {
-          finalMessage = '⚠️ Reachable for you, but not from our probe — possible regional issue.';
-          confidence = 'Low confidence';
-        }
-      }
-
-      setResult(`${finalMessage}\n${confidence}\nTest in browser to confirm. Advanced blocks may not be detected.`);
-    } catch (err) {
-      setResult('❌ Error connecting to check service. Try again.');
-    } finally {
-      setLoading(false);
-    }
+    // Redirect to dynamic status page
+    window.location.href = `/status/${domain}`;
   };
 
   const handleKeyDown = (e) => {
@@ -160,38 +111,12 @@ export default function Home() {
               transition: 'all 0.2s' 
             }}
           >
-            {loading ? 'Checking...' : 'Check Now'}
+            {loading ? 'Redirecting...' : 'Check Now'}
           </button>
         </div>
-
-{result && (
-  <div style={{ 
-    marginTop: '48px', 
-    padding: '12px 20px', // reduced padding for compact look
-    background: result.includes('✅') ? 'rgba(0,255,157,0.15)' : result.includes('⚠️') ? 'rgba(255,165,87,0.15)' : 'rgba(255,77,77,0.15)', 
-    borderRadius: '12px', 
-    border: `1px solid ${result.includes('✅') ? 'rgba(0,255,157,0.3)' : result.includes('⚠️') ? 'rgba(255,165,87,0.3)' : 'rgba(255,77,77,0.3)'}` , 
-    maxWidth: '720px', 
-    margin: '0 auto', 
-    display: 'flex', 
-    alignItems: 'center', 
-    gap: '12px', 
-    textAlign: 'left', 
-    fontSize: '1rem', // reduced font size
-    lineHeight: '1.4', 
-    boxShadow: '0 0 20px rgba(0,212,255,0.2)' 
-  }}>
-    <span style={{ fontSize: '1.8rem' }}>
-      {result.includes('✅') ? '✅' : result.includes('⚠️') ? '⚠️' : '❌'}
-    </span>
-    <p style={{ fontWeight: 'bold', margin: 0 }}>
-      {result.split('\n')[0].replace(/[✅⚠️❌]\s*/, '')}
-    </p>
-  </div>
-)}
       </div>
 
-      {/* Quick Links – your approved vertical stack with left emoji + centered text */}
+      {/* Quick Links – vertical stack with left emoji + centered text */}
       <div style={{
         display: 'flex',
         flexDirection: 'column',
@@ -242,7 +167,7 @@ export default function Home() {
       </div>
 
       <p style={{ color: '#94a3b8', fontSize: '0.9em', marginTop: '40px' }}>
-        Results are indicative only — advanced filtering may not be detected. Confidence based on checks.
+        Results are indicative only — advanced filtering may not be detected.
       </p>
     </div>
   );
