@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 
 export default function SiteStatusPage() {
   const params = useParams();
-  const { site } = params;
+  const site = params.site; // safe access in client component
 
   const decodedSite = decodeURIComponent(site).replace(/-/g, '.');
 
@@ -15,20 +15,6 @@ export default function SiteStatusPage() {
   const [progress, setProgress] = useState(0);
   const [newUrl, setNewUrl] = useState('');
   const [lastChecked, setLastChecked] = useState(new Date());
-  const [reportCount, setReportCount] = useState(0); // User reports
-
-  // Load reports from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem(`reports_${site}`);
-    if (saved) setReportCount(parseInt(saved, 10));
-  }, [site]);
-
-  // Report handler
-  const handleReport = () => {
-    const newCount = reportCount + 1;
-    setReportCount(newCount);
-    localStorage.setItem(`reports_${site}`, newCount.toString());
-  };
 
   const checkSite = async (inputUrl = decodedSite) => {
     setLoading(true);
@@ -200,30 +186,12 @@ export default function SiteStatusPage() {
           </div>
         )}
 
-        {/* User reports + refresh */}
+        {/* Last checked + refresh */}
         {!loading && result && (
-          <div style={{ marginTop: '20px', textAlign: 'center' }}>
+          <div style={{ marginTop: '16px', textAlign: 'center' }}>
             <p style={{ fontSize: '0.9rem', color: '#94a3b8', marginBottom: '8px' }}>
-              {reportCount > 0 ? `${reportCount} users reported issues recently` : 'No reports yet'}
+              Last checked: {timeAgo()}
             </p>
-            <button 
-              onClick={handleReport}
-              style={{
-                padding: '8px 16px',
-                fontSize: '0.9rem',
-                background: 'rgba(255,77,77,0.15)',
-                color: '#ff4d4d',
-                border: '1px solid rgba(255,77,77,0.3)',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                marginRight: '16px',
-                transition: 'all 0.2s'
-              }}
-              className="hover:bg-[rgba(255,77,77,0.25)] hover:scale-105"
-            >
-              Report as Down/Blocked
-            </button>
-
             <button 
               onClick={() => checkSite(decodedSite)}
               disabled={loading}
