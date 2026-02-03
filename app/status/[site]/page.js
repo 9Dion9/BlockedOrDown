@@ -12,16 +12,40 @@ export default function SiteStatusPage() {
 
   const [result, setResult] = useState('');
   const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
   const [newUrl, setNewUrl] = useState('');
+  const [lastChecked, setLastChecked] = useState(new Date());
+  const [reportCount, setReportCount] = useState(0); // User reports
+
+  // Load reports from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(`reports_${site}`);
+    if (saved) setReportCount(parseInt(saved, 10));
+  }, [site]);
+
+  // Report handler
+  const handleReport = () => {
+    const newCount = reportCount + 1;
+    setReportCount(newCount);
+    localStorage.setItem(`reports_${site}`, newCount.toString());
+  };
 
   const checkSite = async (inputUrl = decodedSite) => {
     setLoading(true);
     setResult('');
+    setProgress(0);
+
+    const startTime = Date.now();
 
     let cleanInput = inputUrl.trim().toLowerCase();
     if (!cleanInput.startsWith('http://') && !cleanInput.startsWith('https://')) {
       cleanInput = 'https://' + cleanInput;
     }
+
+    // Progress simulation (smooth 0-90%)
+    const progressInterval = setInterval(() => {
+      setProgress(prev => Math.min(prev + 5, 90));
+    }, 200);
 
     try {
       const serverResponse = await fetch(`/api/check?url=${encodeURIComponent(cleanInput)}`);
@@ -41,13 +65,19 @@ export default function SiteStatusPage() {
         statusColor = '#ff4d4d';
       }
 
-      const explanation = ''; // No yellow case anymore, so no explanation needed
-
-      setResult(`${finalMessage}\n${confidence}${explanation}`);
+      setResult(`${finalMessage}\n${confidence}`);
+      setLastChecked(new Date());
     } catch (err) {
       setResult('❌ Error checking status. Try again.');
     } finally {
-      setLoading(false);
+      // Minimum display time: 1500ms
+      const elapsed = Date.now() - startTime;
+      const delay = Math.max(1500 - elapsed, 0);
+      setTimeout(() => {
+        clearInterval(progressInterval);
+        setProgress(100);
+        setLoading(false);
+      }, delay);
     }
   };
 
@@ -55,10 +85,19 @@ export default function SiteStatusPage() {
     checkSite(decodedSite);
   }, [decodedSite]);
 
+  const handleRefresh = () => checkSite(decodedSite);
+
   const handleNewCheck = () => {
     if (!newUrl.trim()) return;
     const siteSlug = newUrl.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].replace(/\./g, '-');
     if (siteSlug) window.location.href = `/status/${siteSlug}`;
+  };
+
+  const timeAgo = () => {
+    const diff = Math.floor((Date.now() - lastChecked.getTime()) / 1000);
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+    return `${Math.floor(diff / 3600)} hr ago`;
   };
 
   return (
@@ -74,131 +113,201 @@ export default function SiteStatusPage() {
     }}>
       <div style={{ maxWidth: 'clamp(360px, 90vw, 720px)', margin: '0 auto' }}>
         <h1 style={{
-          fontSize: 'clamp(2.5rem, 6vw, 3.5rem)',
+          fontSize: 'clamp(1.8rem, 5vw, 2.5rem)',
           fontWeight: '900',
-          background: 'linear-gradient(90deg, #00d4ff, #3b82f6, #a5b4fc)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          marginBottom: 'clamp(24px, 5vw, 40px)',
-          textShadow: '0 0 50px rgba(0,212,255,0.6)',
-          textAlign: 'center'
+          color: '#ffffff',
+          marginBottom: 'clamp(12px, 3vw, 16px)',
+          textShadow: '0 0 30px rgba(0,212,255,0.6)',
+          textAlign: 'center',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
         }}>
           Is {decodedSite} Down or Blocked?
         </h1>
 
-        {/* Compact result box */}
-{/* Loading */}
-{loading ? (
-  <div style={{ margin: 'clamp(32px, 6vw, 48px) 0', textAlign: 'center' }}>
-    <div style={{
-      width: '36px',
-      height: '36px',
-      border: '4px solid rgba(0,212,255,0.2)',
-      borderTop: '4px solid #00d4ff',
-      borderRadius: '50%',
-      animation: 'spin 1s linear infinite',
-      margin: '0 auto 12px auto'
-    }} />
-    <p style={{ fontSize: '0.95rem', color: '#c9d1d9' }}>Checking...</p>
-  </div>
-) : 
-result && (
-  <div style={{ 
-    marginTop: '40px', 
-    padding: '12px 16px', 
-    background: result.includes('✅') ? 'rgba(0,255,157,0.15)' : result.includes('⚠️') ? 'rgba(255,165,87,0.15)' : 'rgba(255,77,77,0.15)', 
-    borderRadius: '12px', 
-    border: `1px solid ${result.includes('✅') ? 'rgba(0,255,157,0.3)' : result.includes('⚠️') ? 'rgba(255,165,87,0.3)' : 'rgba(255,77,77,0.3)'}` , 
-    maxWidth: 'clamp(320px, 90vw, 600px)', 
-    margin: '0 auto', 
-    display: 'flex', 
-    alignItems: 'center', 
-    gap: '12px', 
-    boxShadow: '0 0 20px rgba(0,212,255,0.2)' 
-  }}>
-    <span style={{ fontSize: 'clamp(1.6rem, 6vw, 2rem)', flexShrink: 0 }}>
-      {result.includes('✅') ? '✅' : result.includes('⚠️') ? '⚠️' : '❌'}
-    </span>
-    <div style={{ flex: 1, textAlign: 'center' }}> {/* ← centers all text */}
-      <p style={{ fontWeight: 'bold', margin: '0 0 4px 0' }}>
-        {result.split('\n')[0].replace(/[✅⚠️❌]\s*/, '')}
-      </p>
-      <p style={{
-        fontSize: 'clamp(0.85rem, 3vw, 0.9rem)',
-        color: '#94a3b8',
-        margin: 0,
-        fontStyle: 'italic' // italic confidence
-      }}>
-        {result.split('\n')[1]} {/* confidence line */}
-      </p>
-      </div>
-  </div>
-) }
+        <p style={{
+          fontSize: 'clamp(0.9rem, 3vw, 1rem)',
+          color: '#c9d1d9',
+          marginBottom: 'clamp(24px, 5vw, 32px)',
+          textAlign: 'center'
+        }}>
+          Live status check from multiple regions
+        </p>
 
-{/* Quick search – compact */}
-<div style={{
-  marginTop: 'clamp(24px, 5vw, 36px)',
-  padding: '10px 14px',
-  background: 'rgba(13,17,23,0.7)',
-  borderRadius: '12px',
-  border: '1px solid rgba(0,212,255,0.25)',
-  maxWidth: 'clamp(300px, 85vw, 480px)',
-  marginLeft: 'auto',
-  marginRight: 'auto',
-  boxShadow: '0 0 16px rgba(0,212,255,0.15)'
-}}>
-  <p style={{ 
-    fontSize: 'clamp(0.9rem, 3vw, 0.95rem)', 
-    color: '#c9d1d9', 
-    margin: '0 0 6px 0', 
-    textAlign: 'center' 
-  }}>
-    Check another website
-  </p>
-  <div style={{ display: 'flex', justifyContent: 'center' }}>
-    <input 
-      type="text" 
-      placeholder="e.g., google.com" 
-      value={newUrl}
-      onChange={(e) => setNewUrl(e.target.value)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' && !loading) {
-          e.preventDefault();
-          const siteSlug = newUrl.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].replace(/\./g, '-');
-          if (siteSlug) window.location.href = `/status/${siteSlug}`;
-        }
-      }}
-      style={{ 
-        flex: 1,
-        padding: '8px 14px', 
-        fontSize: 'clamp(0.85rem, 3vw, 0.95rem)', 
-        borderRadius: '10px 0 0 10px', 
-        border: '1px solid rgba(0,212,255,0.3)', 
-        background: 'rgba(13,17,23,0.7)', 
-        color: '#ffffff', 
-        outline: 'none' 
-      }}
-    />
-    <button 
-      onClick={() => {
-        const siteSlug = newUrl.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].replace(/\./g, '-');
-        if (siteSlug) window.location.href = `/status/${siteSlug}`;
-      }}
-      disabled={loading}
-      style={{ 
-        padding: '8px 18px', 
-        fontSize: 'clamp(0.85rem, 3vw, 0.95rem)', 
-        background: 'linear-gradient(90deg, #00d4ff, #3b82f6)', 
-        color: 'white', 
-        border: 'none', 
-        borderRadius: '0 10px 10px 0', 
-        cursor: 'pointer' 
-      }}
-    >
-      Check
-    </button>
-  </div>
-</div>
+        {/* Loading with % bar */}
+        {loading ? (
+          <div style={{
+            margin: 'clamp(32px, 6vw, 48px) 0',
+            textAlign: 'center',
+            maxWidth: 'clamp(320px, 85vw, 500px)',
+            marginLeft: 'auto',
+            marginRight: 'auto'
+          }}>
+            <div style={{
+              width: '100%',
+              height: '8px',
+              background: 'rgba(0,212,255,0.1)',
+              borderRadius: '4px',
+              overflow: 'hidden',
+              marginBottom: '12px'
+            }}>
+              <div style={{
+                width: `${progress}%`,
+                height: '100%',
+                background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
+                transition: 'width 0.3s ease',
+                borderRadius: '4px'
+              }} />
+            </div>
+            <p style={{ fontSize: '1rem', color: '#c9d1d9', marginBottom: '8px' }}>
+              Checking... {progress}%
+            </p>
+          </div>
+        ) : result && (
+          <div style={{ 
+            marginTop: 'clamp(32px, 6vw, 48px)',
+            padding: '10px 14px',
+            background: result.includes('✅') ? 'rgba(0,255,157,0.15)' : 'rgba(255,77,77,0.15)',
+            borderRadius: '12px',
+            border: `1px solid ${result.includes('✅') ? 'rgba(0,255,157,0.3)' : 'rgba(255,77,77,0.3)'}`,
+            maxWidth: 'clamp(300px, 85vw, 580px)',
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            textAlign: 'center',
+            fontSize: 'clamp(0.9rem, 3.2vw, 1rem)',
+            lineHeight: '1.4',
+            boxShadow: '0 0 16px rgba(0,212,255,0.15)'
+          }}>
+            <span style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', flexShrink: 0 }}>
+              {result.includes('✅') ? '✅' : '❌'}
+            </span>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontWeight: 'bold', margin: '0 0 4px 0' }}>
+                {result.split('\n')[0].replace(/[✅❌]\s*/, '')}
+              </p>
+              <p style={{
+                fontStyle: 'italic',
+                fontSize: 'clamp(0.8rem, 3vw, 0.85rem)',
+                color: '#94a3b8',
+                margin: 0
+              }}>
+                {result.split('\n')[1]}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* User reports + refresh */}
+        {!loading && result && (
+          <div style={{ marginTop: '20px', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.9rem', color: '#94a3b8', marginBottom: '8px' }}>
+              {reportCount > 0 ? `${reportCount} users reported issues recently` : 'No reports yet'}
+            </p>
+            <button 
+              onClick={handleReport}
+              style={{
+                padding: '8px 16px',
+                fontSize: '0.9rem',
+                background: 'rgba(255,77,77,0.15)',
+                color: '#ff4d4d',
+                border: '1px solid rgba(255,77,77,0.3)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                marginRight: '16px',
+                transition: 'all 0.2s'
+              }}
+              className="hover:bg-[rgba(255,77,77,0.25)] hover:scale-105"
+            >
+              Report as Down/Blocked
+            </button>
+
+            <button 
+              onClick={() => checkSite(decodedSite)}
+              disabled={loading}
+              style={{
+                padding: '8px 16px',
+                fontSize: '0.9rem',
+                background: 'rgba(0,212,255,0.15)',
+                color: '#00d4ff',
+                border: '1px solid rgba(0,212,255,0.3)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              className="hover:bg-[rgba(0,212,255,0.25)] hover:scale-105"
+            >
+              Refresh
+            </button>
+          </div>
+        )}
+
+        {/* Quick search box */}
+        <div style={{
+          marginTop: 'clamp(24px, 5vw, 36px)',
+          padding: '10px 14px',
+          background: 'rgba(13,17,23,0.7)',
+          borderRadius: '12px',
+          border: '1px solid rgba(0,212,255,0.25)',
+          maxWidth: 'clamp(300px, 85vw, 480px)',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          boxShadow: '0 0 16px rgba(0,212,255,0.15)'
+        }}>
+          <p style={{ 
+            fontSize: 'clamp(0.9rem, 3vw, 0.95rem)', 
+            color: '#c9d1d9', 
+            margin: '0 0 6px 0', 
+            textAlign: 'center' 
+          }}>
+            Check another website
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <input 
+              type="text" 
+              placeholder="e.g., google.com" 
+              value={newUrl}
+              onChange={(e) => setNewUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !loading) {
+                  e.preventDefault();
+                  const siteSlug = newUrl.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].replace(/\./g, '-');
+                  if (siteSlug) window.location.href = `/status/${siteSlug}`;
+                }
+              }}
+              style={{ 
+                flex: 1,
+                padding: '8px 14px', 
+                fontSize: 'clamp(0.85rem, 3vw, 0.95rem)', 
+                borderRadius: '10px 0 0 10px', 
+                border: '1px solid rgba(0,212,255,0.3)', 
+                background: 'rgba(13,17,23,0.7)', 
+                color: '#ffffff', 
+                outline: 'none' 
+              }}
+            />
+            <button 
+              onClick={() => {
+                const siteSlug = newUrl.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].replace(/\./g, '-');
+                if (siteSlug) window.location.href = `/status/${siteSlug}`;
+              }}
+              disabled={loading}
+              style={{ 
+                padding: '8px 18px', 
+                fontSize: 'clamp(0.85rem, 3vw, 0.95rem)', 
+                background: 'linear-gradient(90deg, #00d4ff, #3b82f6)', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '0 10px 10px 0', 
+                cursor: 'pointer' 
+              }}
+            >
+              Check
+            </button>
+          </div>
+        </div>
 
         <p style={{
           marginTop: 'clamp(40px, 8vw, 60px)',
@@ -217,6 +326,16 @@ result && (
           }} className="hover:shadow-[0_0_70px_rgba(0,212,255,0.7)] hover:scale-105">
             Back to Homepage
           </Link>
+        </p>
+
+        {/* Explainability note */}
+        <p style={{
+          marginTop: 'clamp(32px, 6vw, 48px)',
+          fontSize: '0.85rem',
+          color: '#94a3b8',
+          textAlign: 'center'
+        }}>
+          Powered by multi-region server checks. Results are indicative — test in browser to confirm.
         </p>
       </div>
     </div>
