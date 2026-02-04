@@ -64,18 +64,6 @@ export async function getStaticPaths() {
   };
 }
 
-// Rest of your page code (export default function SiteStatusPage() { ... }) stays exactly the same
-
-  const paths = popularSites.map(site => ({
-    params: { site }
-  }));
-
-  return {
-    paths,
-    fallback: 'blocking' // dynamic pages for non-listed sites
-  };
-}
-
 export default function SiteStatusPage() {
   const params = useParams();
   const { site } = params;
