@@ -3,13 +3,42 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+export async function getStaticPaths() {
+  const popularSites = [
+    'youtube-com', 'netflix-com', 'google-com', 'grok-com', 'facebook-com',
+    'instagram-com', 'twitter-com', 'amazon-com', 'reddit-com', 'wikipedia-org',
+    'tiktok-com', 'spotify-com', 'twitch-tv', 'discord-com', 'linkedin-com',
+    'pinterest-com', 'snapchat-com', 'telegram-org', 'whatsapp-com', 'zoom-us',
+    'microsoft-com', 'apple-com', 'ebay-com', 'aliexpress-com', 'paypal-com',
+    'stripe-com', 'binance-com', 'coinbase-com', 'kraken-com', 'hulu-com',
+    'disneyplus-com', 'primevideo-com', 'hbomax-com', 'paramountplus-com',
+    'peacocktv-com', 'crunchyroll-com', 'plex-tv', 'vimeo-com', 'dailymotion-com',
+    'bilibili-com', 'kick-com', 'rumble-com', 'trovo-live', 'soundcloud-com',
+    'bandcamp-com', 'patreon-com', 'kickstarter-com', 'onlyfans-com', 'pornhub-com',
+    'xvideos-com', 'roblox-com', 'minecraft-net', 'fortnite-com', 'epicgames-com',
+    'steam-com', 'playstation-com', 'xbox-com', 'nintendo-com', 'riotgames-com',
+    'blizzard-com', 'github-com', 'stackoverflow-com', 'npmjs-com', 'pypi-org',
+    'chatgpt-com', 'openai-com', 'claude-ai', 'gemini-google', 'perplexity-ai',
+    'notion-so', 'slack-com', 'teams-microsoft', 'google-drive', 'dropbox-com',
+    'onedrive-com', 'mega-nz', 'canva-com', 'figma-com', 'grammarly-com',
+    'deepl-com', 'zoho-com', 'trello-com', 'asana-com', 'monday-com'
+    // Add more — aim for 200–300 total. Expand in batches
+  ];
+
+  const paths = popularSites.map(site => ({
+    params: { site }
+  }));
+
+  return {
+    paths,
+    fallback: 'blocking' // dynamic pages for non-listed sites
+  };
+}
 
 export default function SiteStatusPage() {
   const params = useParams();
   const { site } = params;
-
   const decodedSite = decodeURIComponent(site).replace(/-/g, '.');
-
   const [result, setResult] = useState('');
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
