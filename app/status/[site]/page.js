@@ -6,25 +6,65 @@ import { useParams } from 'next/navigation';
 
 export async function getStaticPaths() {
   const popularSites = [
-    'youtube-com', 'netflix-com', 'google-com', 'grok-com', 'facebook-com',
-    'instagram-com', 'twitter-com', 'amazon-com', 'reddit-com', 'wikipedia-org',
-    'tiktok-com', 'spotify-com', 'twitch-tv', 'discord-com', 'linkedin-com',
-    'pinterest-com', 'snapchat-com', 'telegram-org', 'whatsapp-com', 'zoom-us',
-    'microsoft-com', 'apple-com', 'ebay-com', 'aliexpress-com', 'paypal-com',
-    'stripe-com', 'binance-com', 'coinbase-com', 'kraken-com', 'hulu-com',
-    'disneyplus-com', 'primevideo-com', 'hbomax-com', 'paramountplus-com',
-    'peacocktv-com', 'crunchyroll-com', 'plex-tv', 'vimeo-com', 'dailymotion-com',
-    'bilibili-com', 'kick-com', 'rumble-com', 'trovo-live', 'soundcloud-com',
-    'bandcamp-com', 'patreon-com', 'kickstarter-com', 'onlyfans-com', 'pornhub-com',
-    'xvideos-com', 'roblox-com', 'minecraft-net', 'fortnite-com', 'epicgames-com',
-    'steam-com', 'playstation-com', 'xbox-com', 'nintendo-com', 'riotgames-com',
-    'blizzard-com', 'github-com', 'stackoverflow-com', 'npmjs-com', 'pypi-org',
-    'chatgpt-com', 'openai-com', 'claude-ai', 'gemini-google', 'perplexity-ai',
-    'notion-so', 'slack-com', 'teams-microsoft', 'google-drive', 'dropbox-com',
-    'onedrive-com', 'mega-nz', 'canva-com', 'figma-com', 'grammarly-com',
-    'deepl-com', 'zoho-com', 'trello-com', 'asana-com', 'monday-com'
-    // Add more — aim for 200–300 total. Expand in batches
+    // Social & Messaging
+    'youtube-com', 'facebook-com', 'instagram-com', 'twitter-com', 'tiktok-com',
+    'snapchat-com', 'discord-com', 'telegram-org', 'whatsapp-com', 'signal-org',
+    'reddit-com', 'pinterest-com', 'linkedin-com', 'wechat-com', 'vk-com',
+
+    // Streaming & Entertainment
+    'netflix-com', 'disneyplus-com', 'hulu-com', 'primevideo-com', 'hbomax-com',
+    'paramountplus-com', 'peacocktv-com', 'crunchyroll-com', 'plex-tv', 'vimeo-com',
+    'dailymotion-com', 'bilibili-com', 'soundcloud-com', 'spotify-com', 'apple-music-com',
+
+    // Gaming & Platforms
+    'roblox-com', 'minecraft-net', 'fortnite-com', 'epicgames-com', 'steam-com',
+    'playstation-com', 'xbox-com', 'nintendo-com', 'riotgames-com', 'blizzard-com',
+    'twitch-tv', 'kick-com', 'rumble-com', 'trovo-live', 'valorant-com',
+
+    // Search & AI Tools
+    'google-com', 'grok-com', 'chatgpt-com', 'openai-com', 'claude-ai',
+    'gemini-google', 'perplexity-ai', 'midjourney-com', 'deepseek-ai', 'anthropic-com',
+
+    // Productivity & Cloud
+    'notion-so', 'slack-com', 'teams-microsoft', 'zoom-us', 'google-drive',
+    'dropbox-com', 'onedrive-com', 'mega-nz', 'canva-com', 'figma-com',
+    'grammarly-com', 'deepl-com', 'zoho-com', 'trello-com', 'asana-com',
+    'monday-com', 'airtable-com', 'clickup-com', 'evernote-com', 'box-com',
+
+    // Finance & Crypto
+    'paypal-com', 'stripe-com', 'binance-com', 'coinbase-com', 'kraken-com',
+    'revolut-com', 'wise-com', 'venmo-com', 'cashapp-com', 'robinhood-com',
+
+    // Shopping & E-commerce
+    'amazon-com', 'ebay-com', 'aliexpress-com', 'etsy-com', 'walmart-com',
+    'target-com', 'bestbuy-com', 'shein-com', 'temu-com', 'wish-com',
+
+    // News & Knowledge
+    'wikipedia-org', 'nytimes-com', 'cnn-com', 'bbc-co-uk', 'foxnews-com',
+    'theguardian-com', 'washingtonpost-com', 'bloomberg-com', 'reuters-com', 'forbes-com',
+
+    // Other High-Traffic
+    'github-com', 'stackoverflow-com', 'npmjs-com', 'pypi-org', 'deviantart-com',
+    'fandom-com', 'quora-com', 'imdb-com', 'booking-com', 'airbnb-com',
+    'uber-com', 'lyft-com', 'doordash-com', 'grubhub-com', 'postmates-com',
+    // → This is ~150 sites. Expand further below if you want 300–500
+    // Example extension:
+    'outlook-com', 'gmail-com', 'yahoo-com', 'protonmail-com', 'tutanota-com',
+    'discord-gg', 'twitch-tv', 'kickstarter-com', 'patreon-com', 'onlyfans-com',
+    // ... add more as needed
   ];
+
+  const paths = popularSites.map(site => ({
+    params: { site }
+  }));
+
+  return {
+    paths,
+    fallback: 'blocking' // non-listed sites work dynamically
+  };
+}
+
+// Rest of your page code (export default function SiteStatusPage() { ... }) stays exactly the same
 
   const paths = popularSites.map(site => ({
     params: { site }
