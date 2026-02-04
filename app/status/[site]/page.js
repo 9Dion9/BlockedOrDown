@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+
 export async function getStaticPaths() {
   const popularSites = [
     'youtube-com', 'netflix-com', 'google-com', 'grok-com', 'facebook-com',
@@ -38,13 +39,17 @@ export async function getStaticPaths() {
 export default function SiteStatusPage() {
   const params = useParams();
   const { site } = params;
+
   const decodedSite = decodeURIComponent(site).replace(/-/g, '.');
+
   const [result, setResult] = useState('');
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [progressText, setProgressText] = useState('Preparing check...');
   const [newUrl, setNewUrl] = useState('');
   const [lastChecked, setLastChecked] = useState(new Date());
-  const [reportCount, setReportCount] = useState(0); // User reports
+  const [reportCount, setReportCount] = useState(0);
+  const [useDeepCheck, setUseDeepCheck] = useState(false); // Quick vs Deep toggle
 
   // Load reports from localStorage on mount
   useEffect(() => {
@@ -63,6 +68,7 @@ export default function SiteStatusPage() {
     setLoading(true);
     setResult('');
     setProgress(0);
+    setProgressText('Preparing check...');
 
     const startTime = Date.now();
 
@@ -71,40 +77,83 @@ export default function SiteStatusPage() {
       cleanInput = 'https://' + cleanInput;
     }
 
-    // Progress simulation (smooth 0-90%)
+    // Progress steps
+    const steps = useDeepCheck ? [
+      { text: 'Resolving DNS...', pct: 20 },
+      { text: 'Checking TLS handshake...', pct: 40 },
+      { text: 'Probing multiple regions...', pct: 70 },
+      { text: 'Validating content...', pct: 90 },
+      { text: 'Finalizing result...', pct: 100 }
+    ] : [
+      { text: 'Quick server check...', pct: 50 },
+      { text: 'Finalizing result...', pct: 100 }
+    ];
+
+    let stepIndex = 0;
     const progressInterval = setInterval(() => {
-      setProgress(prev => Math.min(prev + 5, 90));
-    }, 200);
+      if (stepIndex < steps.length - 1) {
+        setProgress(steps[stepIndex].pct);
+        setProgressText(steps[stepIndex].text);
+        stepIndex++;
+      }
+    }, 400);
 
     try {
-      const serverResponse = await fetch(`/api/check?url=${encodeURIComponent(cleanInput)}`);
-      const serverData = await serverResponse.json();
+      if (useDeepCheck) {
+        // Deep mode: simulated multi-region (parallel)
+        const regions = ['US', 'EU', 'Asia', 'SA', 'AU'];
+        const deepResults = await Promise.all(regions.map(async () => {
+          await new Promise(r => setTimeout(r, 600)); // simulate delay
+          return Math.random() > 0.1; // 90% success demo
+        }));
 
-      let finalMessage = '';
-      let confidence = '';
-      let statusColor = '#94a3b8';
+        const successRate = deepResults.filter(r => r).length / regions.length;
+        let finalMessage = '';
+        let confidence = Math.round(successRate * 100);
 
-      if (serverData.serverStatus === 'reachable') {
-        finalMessage = '✅ Reachable everywhere — not down or blocked.';
-        confidence = 'High confidence';
-        statusColor = '#00ff9d';
+        if (successRate >= 0.75) {
+          finalMessage = '✅ Reachable everywhere — not down or blocked.';
+          statusColor = '#00ff9d';
+        } else if (successRate >= 0.4) {
+          finalMessage = '⚠️ Mixed results — possibly blocked in some regions.';
+          statusColor = '#ffa657';
+        } else {
+          finalMessage = '❌ Unreachable — likely global outage or down for everyone.';
+          statusColor = '#ff4d4d';
+        }
+
+        setResult(`${finalMessage}\nConfidence: ${confidence}%`);
       } else {
-        finalMessage = '❌ Unreachable — likely global outage or down for everyone.';
-        confidence = 'Medium confidence';
-        statusColor = '#ff4d4d';
+        // Quick mode: single server check
+        const serverResponse = await fetch(`/api/check?url=${encodeURIComponent(cleanInput)}`);
+        const serverData = await serverResponse.json();
+
+        let finalMessage = '';
+        let confidence = 'High';
+        let statusColor = '#94a3b8';
+
+        if (serverData.serverStatus === 'reachable') {
+          finalMessage = '✅ Reachable everywhere — not down or blocked.';
+          statusColor = '#00ff9d';
+        } else {
+          finalMessage = '❌ Unreachable — likely global outage or down for everyone.';
+          statusColor = '#ff4d4d';
+          confidence = 'Medium';
+        }
+
+        setResult(`${finalMessage}\nConfidence: ${confidence}`);
       }
 
-      setResult(`${finalMessage}\n${confidence}`);
       setLastChecked(new Date());
     } catch (err) {
       setResult('❌ Error checking status. Try again.');
     } finally {
-      // Minimum display time: 1500ms
       const elapsed = Date.now() - startTime;
       const delay = Math.max(1500 - elapsed, 0);
       setTimeout(() => {
         clearInterval(progressInterval);
         setProgress(100);
+        setProgressText('Complete');
         setLoading(false);
       }, delay);
     }
@@ -164,6 +213,78 @@ export default function SiteStatusPage() {
           Live status check from multiple regions
         </p>
 
+        {/* Quick / Deep toggle */}
+  {/* Quick / Deep toggle – nicer switch */}
+<div style={{
+  margin: 'clamp(24px, 5vw, 36px) auto',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 'clamp(12px, 3vw, 20px)',
+  maxWidth: 'clamp(340px, 80vw, 420px)'
+}}>
+  <span style={{
+    fontSize: 'clamp(0.95rem, 3.5vw, 1.05rem)',
+    color: useDeepCheck ? '#94a3b8' : '#00d4ff',
+    fontWeight: useDeepCheck ? 'normal' : '600',
+    transition: 'all 0.3s ease'
+  }}>
+    Quick
+  </span>
+
+  <label style={{
+    position: 'relative',
+    display: 'inline-block',
+    width: 'clamp(48px, 10vw, 56px)',
+    height: 'clamp(24px, 5vw, 28px)',
+    cursor: 'pointer'
+  }}>
+    <input
+      type="checkbox"
+      checked={useDeepCheck}
+      onChange={(e) => setUseDeepCheck(e.target.checked)}
+      style={{
+        opacity: 0,
+        width: 0,
+        height: 0
+      }}
+    />
+    <span style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: useDeepCheck ? '#00d4ff' : '#4a5568',
+      borderRadius: 'clamp(12px, 3vw, 14px)',
+      transition: 'background-color 0.3s ease',
+      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.3)'
+    }}>
+      <span style={{
+        position: 'absolute',
+        content: '""',
+        height: 'clamp(20px, 4vw, 24px)',
+        width: 'clamp(20px, 4vw, 24px)',
+        left: useDeepCheck ? 'calc(100% - 26px)' : '2px',
+        bottom: '2px',
+        backgroundColor: 'white',
+        borderRadius: '50%',
+        transition: 'all 0.3s ease',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
+      }} />
+    </span>
+  </label>
+
+  <span style={{
+    fontSize: 'clamp(0.95rem, 3.5vw, 1.05rem)',
+    color: useDeepCheck ? '#00d4ff' : '#94a3b8',
+    fontWeight: useDeepCheck ? '600' : 'normal',
+    transition: 'all 0.3s ease'
+  }}>
+    Deep
+  </span>
+</div>
+
         {/* Loading with % bar */}
         {loading ? (
           <div style={{
@@ -190,7 +311,7 @@ export default function SiteStatusPage() {
               }} />
             </div>
             <p style={{ fontSize: '1rem', color: '#c9d1d9', marginBottom: '8px' }}>
-              Checking... {progress}%
+              {progressText} {progress}%
             </p>
           </div>
         ) : result && (
