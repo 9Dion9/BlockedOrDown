@@ -14,46 +14,55 @@ export default function Home() {
     window.location.href = `/status/${slug}`;
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') checkSite();
+  };
+
   return (
     <div style={{
       minHeight: '100vh',
-      padding: 'clamp(80px, 10vw, 140px) 20px',
+      padding: 'clamp(60px, 8vw, 100px) 20px',
       textAlign: 'center',
-      background: 'var(--bg-primary)'
+      background: 'transparent'
     }}>
-      <div className="glass" style={{
-        maxWidth: '900px',
-        margin: '0 auto',
-        padding: 'clamp(40px, 6vw, 60px) clamp(24px, 4vw, 40px)',
-        borderRadius: '24px'
-      }}>
+<div style={{
+  maxWidth: '900px',
+  margin: '0 auto',
+  padding: 'clamp(40px, 6vw, 60px) clamp(24px, 4vw, 40px)',
+  borderRadius: '24px',
+  background: 'rgba(13,17,23,0.35)', // very light dark tint (adjust opacity 0.2–0.4)
+  backdropFilter: 'blur(8px)',       // subtle blur
+  border: '1px solid rgba(0,212,255,0.15)', // faint cyan border
+  boxShadow: '0 8px 32px rgba(0,212,255,0.15)' // soft cyan glow shadow
+}}>
+        {/* Compacter & finer hero */}
         <h1 style={{
-          fontSize: 'clamp(2.4rem, 6vw, 3.8rem)',
+          fontSize: 'clamp(2.2rem, 5.5vw, 3.2rem)',
           fontWeight: '900',
           color: '#00d4ff',
-          marginBottom: '20px',
-          textShadow: '0 0 40px rgba(0,212,255,0.7)'
+          marginBottom: '16px',
+          textShadow: '0 0 30px rgba(0,212,255,0.6)'
         }}>
           Is this site down or blocked?
         </h1>
 
         <p style={{
-          fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
+          fontSize: 'clamp(1rem, 2.8vw, 1.25rem)',
           color: '#c9d1d9',
-          marginBottom: '40px'
+          marginBottom: '32px'
         }}>
           Enter any website to get multi-signal status proof in seconds.
         </p>
 
-        {/* Search Bar */}
+        {/* Compacter search bar */}
         <div style={{
           display: 'flex',
-          maxWidth: '700px',
-          margin: '0 auto 40px auto',
-          background: 'rgba(13,17,23,0.7)',
+          maxWidth: 'clamp(500px, 80vw, 700px)',
+          margin: '0 auto 32px auto',
+          background: 'rgba(13,17,23,0.75)',
           borderRadius: '16px',
           border: '1px solid rgba(0,212,255,0.35)',
-          boxShadow: '0 0 50px rgba(0,212,255,0.25)',
+          boxShadow: '0 0 40px rgba(0,212,255,0.25)',
           overflow: 'hidden'
         }}>
           <input
@@ -61,11 +70,11 @@ export default function Home() {
             placeholder="e.g., youtube.com or netflix.com"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && checkSite()}
+            onKeyDown={handleKeyDown}
             style={{
               flex: 1,
-              padding: '20px 24px',
-              fontSize: '1.3rem',
+              padding: 'clamp(14px, 3vw, 18px) 20px',
+              fontSize: 'clamp(1rem, 3vw, 1.2rem)',
               background: 'transparent',
               border: 'none',
               color: '#ffffff',
@@ -75,11 +84,11 @@ export default function Home() {
           <button
             onClick={checkSite}
             style={{
-              padding: '20px 40px',
+              padding: 'clamp(14px, 3vw, 18px) 32px',
               background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
               color: 'white',
               border: 'none',
-              fontSize: '1.3rem',
+              fontSize: 'clamp(1rem, 3vw, 1.2rem)',
               fontWeight: '600',
               cursor: 'pointer',
               transition: 'all 0.3s'
@@ -89,27 +98,26 @@ export default function Home() {
           </button>
         </div>
 
-        {/* Quick Chips */}
+        {/* Quick chips */}
         <div style={{
           display: 'flex',
           flexWrap: 'wrap',
           gap: '12px',
           justifyContent: 'center',
-          marginBottom: '60px'
+          marginBottom: '48px'
         }}>
           {['youtube.com', 'discord.com', 'chatgpt.com', 'tiktok.com'].map(site => (
             <Link
               key={site}
               href={`/status/${site.replace(/\./g, '-')}`}
-              className="chip"
               style={{
-                padding: '12px 20px',
+                padding: '10px 18px',
                 background: 'rgba(13,17,23,0.65)',
                 border: '1px solid rgba(0,212,255,0.3)',
                 borderRadius: '12px',
                 color: '#ffffff',
                 textDecoration: 'none',
-                fontSize: '1rem',
+                fontSize: '0.95rem',
                 transition: 'all 0.3s'
               }}
             >
@@ -118,40 +126,243 @@ export default function Home() {
           ))}
         </div>
 
-        {/* 2x2 Feature Cards */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '20px',
-          maxWidth: '1000px',
-          margin: '0 auto'
-        }}>
-          <div className="glass">
-            <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🔍</div>
-            <h3 style={{ color: '#00d4ff', marginBottom: '8px' }}>Scan a Category</h3>
-            <p style={{ color: '#c9d1d9' }}>Social • AI • Streaming • Gaming</p>
-          </div>
-
-          <div className="glass">
-            <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🌍</div>
-            <h3 style={{ color: '#8b5cf6', marginBottom: '8px' }}>Global Outages</h3>
-            <p style={{ color: '#c9d1d9' }}>Live status of major platforms</p>
-          </div>
-
-          <div className="glass">
-            <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🌐</div>
-            <h3 style={{ color: '#00ff9d', marginBottom: '8px' }}>Check Your IP</h3>
-            <p style={{ color: '#c9d1d9' }}>ISP, location & connection type</p>
-          </div>
-
-          <div className="glass">
-            <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🚫</div>
-            <h3 style={{ color: '#ffa657', marginBottom: '8px' }}>Most Blocked Sites</h3>
-            <p style={{ color: '#c9d1d9' }}>Popular sites at work & school</p>
-          </div>
-        </div>
+{/* Ultra-compact, zero bottom margin, fully responsive feature cards */}
+<div style={{
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', // 2 columns on desktop, 1 on mobile
+  gap: 'clamp(8px, 1.5vw, 12px)', // tight gaps
+  maxWidth: 'clamp(460px, 85vw, 680px)', // narrower for compactness
+  margin: '0 auto 32px auto' // reduced overall bottom margin
+}}>
+  {/* Card 1 */}
+  <Link href="/categories" style={{ textDecoration: 'none' }}>
+    <div className="glass" style={{
+      padding: 'clamp(10px, 2vw, 14px)',
+      borderRadius: '14px',
+      border: '1px solid rgba(0, 212, 255, 0.25)',
+      boxShadow: '0 4px 16px rgba(0,212,255,0.15)',
+      background: 'rgba(13,17,23,0.75)',
+      backdropFilter: 'blur(10px)',
+      transition: 'all 0.3s ease',
+      cursor: 'pointer',
+      textAlign: 'center',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '3px', // minimal internal spacing
+    }} onMouseEnter={e => {
+      e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,212,255,0.35)';
+      e.currentTarget.style.transform = 'scale(1.03)';
+    }} onMouseLeave={e => {
+      e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,212,255,0.15)';
+      e.currentTarget.style.transform = 'scale(1)';
+    }}>
+      <div style={{
+        width: '24px',
+        height: '24px',
+        background: 'rgba(0,212,255,0.15)',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 0 10px rgba(0,212,255,0.35)'
+      }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" strokeWidth="2">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
       </div>
+      <h3 style={{ 
+        fontSize: '0.85rem', 
+        fontWeight: '600', 
+        color: '#00d4ff', 
+        margin: 0 
+      }}>
+        Scan a Category
+      </h3>
+      <p style={{ 
+        fontSize: '0.7rem', 
+        color: '#c9d1d9', 
+        margin: 0,
+        lineHeight: '1.1'
+      }}>
+        Social·AI·Streaming·Gaming
+      </p>
+    </div>
+  </Link>
 
+  {/* Card 2 */}
+  <Link href="/outages" style={{ textDecoration: 'none' }}>
+    <div className="glass" style={{
+      padding: 'clamp(10px, 2vw, 14px)',
+      borderRadius: '14px',
+      border: '1px solid rgba(139, 92, 246, 0.25)',
+      boxShadow: '0 4px 16px rgba(139,92,246,0.15)',
+      background: 'rgba(13,17,23,0.75)',
+      backdropFilter: 'blur(10px)',
+      transition: 'all 0.3s ease',
+      cursor: 'pointer',
+      textAlign: 'center',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '3px',
+    }} onMouseEnter={e => {
+      e.currentTarget.style.boxShadow = '0 8px 32px rgba(139,92,246,0.35)';
+      e.currentTarget.style.transform = 'scale(1.03)';
+    }} onMouseLeave={e => {
+      e.currentTarget.style.boxShadow = '0 4px 16px rgba(139,92,246,0.15)';
+      e.currentTarget.style.transform = 'scale(1)';
+    }}>
+      <div style={{
+        width: '24px',
+        height: '24px',
+        background: 'rgba(139,92,246,0.15)',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 0 10px rgba(139,92,246,0.35)'
+      }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2">
+          <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+        </svg>
+      </div>
+      <h3 style={{ 
+        fontSize: '0.85rem', 
+        fontWeight: '600', 
+        color: '#8b5cf6', 
+        margin: 0 
+      }}>
+        Global Outages
+      </h3>
+      <p style={{ 
+        fontSize: '0.7rem', 
+        color: '#c9d1d9', 
+        margin: 0,
+        lineHeight: '1.1'
+      }}>
+        Live status of major platforms
+      </p>
+    </div>
+  </Link>
+
+  {/* Card 3 */}
+  <Link href="/my-ip" style={{ textDecoration: 'none' }}>
+    <div className="glass" style={{
+      padding: 'clamp(10px, 2vw, 14px)',
+      borderRadius: '14px',
+      border: '1px solid rgba(0, 255, 157, 0.25)',
+      boxShadow: '0 4px 16px rgba(0,255,157,0.15)',
+      background: 'rgba(13,17,23,0.75)',
+      backdropFilter: 'blur(10px)',
+      transition: 'all 0.3s ease',
+      cursor: 'pointer',
+      textAlign: 'center',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '4px',
+    }} onMouseEnter={e => {
+      e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,255,157,0.35)';
+      e.currentTarget.style.transform = 'scale(1.03)';
+    }} onMouseLeave={e => {
+      e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,255,157,0.15)';
+      e.currentTarget.style.transform = 'scale(1)';
+    }}>
+      <div style={{
+        width: '24px',
+        height: '24px',
+        background: 'rgba(0,255,157,0.15)',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 0 10px rgba(0,255,157,0.35)'
+      }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00ff9d" strokeWidth="2">
+          <circle cx="12" cy="12" r="10" />
+          <circle cx="12" cy="12" r="6" />
+          <circle cx="12" cy="12" r="2" />
+        </svg>
+      </div>
+      <h3 style={{ 
+        fontSize: '0.85rem', 
+        fontWeight: '600', 
+        color: '#00ff9d', 
+        margin: 0 
+      }}>
+        Check Your IP
+      </h3>
+      <p style={{ 
+        fontSize: '0.7rem', 
+        color: '#c9d1d9', 
+        margin: 0,
+        lineHeight: '1.1'
+      }}>
+        ISP, location & connection type
+      </p>
+    </div>
+  </Link>
+
+  {/* Card 4 */}
+  <Link href="/popular-blocked" style={{ textDecoration: 'none' }}>
+    <div className="glass" style={{
+      padding: 'clamp(10px, 2vw, 14px)',
+      borderRadius: '14px',
+      border: '1px solid rgba(255, 166, 87, 0.25)',
+      boxShadow: '0 4px 16px rgba(255,166,87,0.15)',
+      background: 'rgba(13,17,23,0.75)',
+      backdropFilter: 'blur(10px)',
+      transition: 'all 0.3s ease',
+      cursor: 'pointer',
+      textAlign: 'center',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '4px',
+    }} onMouseEnter={e => {
+      e.currentTarget.style.boxShadow = '0 8px 32px rgba(255,166,87,0.35)';
+      e.currentTarget.style.transform = 'scale(1.03)';
+    }} onMouseLeave={e => {
+      e.currentTarget.style.boxShadow = '0 4px 16px rgba(255,166,87,0.15)';
+      e.currentTarget.style.transform = 'scale(1)';
+    }}>
+      <div style={{
+        width: '24px',
+        height: '24px',
+        background: 'rgba(255,166,87,0.15)',
+        borderRadius: '50%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: '0 0 10px rgba(255,166,87,0.35)'
+      }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ffa657" strokeWidth="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+          <line x1="9" y1="9" x2="15" y2="15" />
+          <line x1="15" y1="9" x2="9" y2="15" />
+        </svg>
+      </div>
+      <h3 style={{ 
+        fontSize: '0.85rem', 
+        fontWeight: '600', 
+        color: '#ffa657', 
+        margin: 0 
+      }}>
+        Most Blocked Sites
+      </h3>
+      <p style={{ 
+        fontSize: '0.7rem', 
+        color: '#c9d1d9', 
+        margin: 0,
+        lineHeight: '1.1'
+      }}>
+        Popular sites at work & school
+      </p>
+    </div>
+  </Link>
+</div>
       <p style={{
         marginTop: '80px',
         fontSize: '0.9rem',
@@ -160,6 +371,7 @@ export default function Home() {
       }}>
         Results are indicative only — advanced filtering may not be detected. • Multi-region proof coming in Phase 3
       </p>
+    </div>
     </div>
   );
 }
