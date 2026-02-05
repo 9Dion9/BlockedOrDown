@@ -1,521 +1,113 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 
-export async function getStaticPaths() {
-  const popularSites = [
-    // Social & Messaging
-    'youtube-com', 'facebook-com', 'instagram-com', 'twitter-com', 'tiktok-com',
-    'snapchat-com', 'discord-com', 'telegram-org', 'whatsapp-com', 'signal-org',
-    'reddit-com', 'pinterest-com', 'linkedin-com', 'wechat-com', 'vk-com',
+export default function Home() {
+  const [url, setUrl] = useState('');
 
-    // Streaming & Entertainment
-    'netflix-com', 'disneyplus-com', 'hulu-com', 'primevideo-com', 'hbomax-com',
-    'paramountplus-com', 'peacocktv-com', 'crunchyroll-com', 'plex-tv', 'vimeo-com',
-    'dailymotion-com', 'bilibili-com', 'soundcloud-com', 'spotify-com', 'apple-music-com',
-
-    // Gaming & Platforms
-    'roblox-com', 'minecraft-net', 'fortnite-com', 'epicgames-com', 'steam-com',
-    'playstation-com', 'xbox-com', 'nintendo-com', 'riotgames-com', 'blizzard-com',
-    'twitch-tv', 'kick-com', 'rumble-com', 'trovo-live', 'valorant-com',
-
-    // Search & AI Tools
-    'google-com', 'grok-com', 'chatgpt-com', 'openai-com', 'claude-ai',
-    'gemini-google', 'perplexity-ai', 'midjourney-com', 'deepseek-ai', 'anthropic-com',
-
-    // Productivity & Cloud
-    'notion-so', 'slack-com', 'teams-microsoft', 'zoom-us', 'google-drive',
-    'dropbox-com', 'onedrive-com', 'mega-nz', 'canva-com', 'figma-com',
-    'grammarly-com', 'deepl-com', 'zoho-com', 'trello-com', 'asana-com',
-    'monday-com', 'airtable-com', 'clickup-com', 'evernote-com', 'box-com',
-
-    // Finance & Crypto
-    'paypal-com', 'stripe-com', 'binance-com', 'coinbase-com', 'kraken-com',
-    'revolut-com', 'wise-com', 'venmo-com', 'cashapp-com', 'robinhood-com',
-
-    // Shopping & E-commerce
-    'amazon-com', 'ebay-com', 'aliexpress-com', 'etsy-com', 'walmart-com',
-    'target-com', 'bestbuy-com', 'shein-com', 'temu-com', 'wish-com',
-
-    // News & Knowledge
-    'wikipedia-org', 'nytimes-com', 'cnn-com', 'bbc-co-uk', 'foxnews-com',
-    'theguardian-com', 'washingtonpost-com', 'bloomberg-com', 'reuters-com', 'forbes-com',
-
-    // Other High-Traffic
-    'github-com', 'stackoverflow-com', 'npmjs-com', 'pypi-org', 'deviantart-com',
-    'fandom-com', 'quora-com', 'imdb-com', 'booking-com', 'airbnb-com',
-    'uber-com', 'lyft-com', 'doordash-com', 'grubhub-com', 'postmates-com',
-    // → This is ~150 sites. Expand further below if you want 300–500
-    // Example extension:
-    'outlook-com', 'gmail-com', 'yahoo-com', 'protonmail-com', 'tutanota-com',
-    'discord-gg', 'twitch-tv', 'kickstarter-com', 'patreon-com', 'onlyfans-com',
-    // ... add more as needed
-  ];
-
-  const paths = popularSites.map(site => ({
-    params: { site }
-  }));
-
-  return {
-    paths,
-    fallback: 'blocking' // non-listed sites work dynamically
-  };
-}
-
-export default function SiteStatusPage() {
-  const params = useParams();
-  const { site } = params;
-
-  const decodedSite = decodeURIComponent(site).replace(/-/g, '.');
-
-  const [result, setResult] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
-  const [progressText, setProgressText] = useState('Preparing check...');
-  const [newUrl, setNewUrl] = useState('');
-  const [lastChecked, setLastChecked] = useState(new Date());
-  const [reportCount, setReportCount] = useState(0);
-  const [useDeepCheck, setUseDeepCheck] = useState(false); // Quick vs Deep toggle
-
-  // Load reports from localStorage on mount
-  useEffect(() => {
-    const saved = localStorage.getItem(`reports_${site}`);
-    if (saved) setReportCount(parseInt(saved, 10));
-  }, [site]);
-
-  // Report handler
-  const handleReport = () => {
-    const newCount = reportCount + 1;
-    setReportCount(newCount);
-    localStorage.setItem(`reports_${site}`, newCount.toString());
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      checkSite();
+    }
   };
 
-  const checkSite = async (inputUrl = decodedSite) => {
-    setLoading(true);
-    setResult('');
-    setProgress(0);
-    setProgressText('Preparing check...');
-
-    const startTime = Date.now();
-
-    let cleanInput = inputUrl.trim().toLowerCase();
+  const checkSite = () => {
+    if (!url.trim()) return;
+    let cleanInput = url.trim().toLowerCase();
     if (!cleanInput.startsWith('http://') && !cleanInput.startsWith('https://')) {
       cleanInput = 'https://' + cleanInput;
     }
-
-    // Progress steps
-    const steps = useDeepCheck ? [
-      { text: 'Resolving DNS...', pct: 20 },
-      { text: 'Checking TLS handshake...', pct: 40 },
-      { text: 'Probing multiple regions...', pct: 70 },
-      { text: 'Validating content...', pct: 90 },
-      { text: 'Finalizing result...', pct: 100 }
-    ] : [
-      { text: 'Quick server check...', pct: 50 },
-      { text: 'Finalizing result...', pct: 100 }
-    ];
-
-    let stepIndex = 0;
-    const progressInterval = setInterval(() => {
-      if (stepIndex < steps.length - 1) {
-        setProgress(steps[stepIndex].pct);
-        setProgressText(steps[stepIndex].text);
-        stepIndex++;
-      }
-    }, 400);
-
-    try {
-      if (useDeepCheck) {
-        // Deep mode: simulated multi-region (parallel)
-        const regions = ['US', 'EU', 'Asia', 'SA', 'AU'];
-        const deepResults = await Promise.all(regions.map(async () => {
-          await new Promise(r => setTimeout(r, 600)); // simulate delay
-          return Math.random() > 0.1; // 90% success demo
-        }));
-
-        const successRate = deepResults.filter(r => r).length / regions.length;
-        let finalMessage = '';
-        let confidence = Math.round(successRate * 100);
-
-        if (successRate >= 0.75) {
-          finalMessage = '✅ Reachable everywhere — not down or blocked.';
-          statusColor = '#00ff9d';
-        } else if (successRate >= 0.4) {
-          finalMessage = '⚠️ Mixed results — possibly blocked in some regions.';
-          statusColor = '#ffa657';
-        } else {
-          finalMessage = '❌ Unreachable — likely global outage or down for everyone.';
-          statusColor = '#ff4d4d';
-        }
-
-        setResult(`${finalMessage}\nConfidence: ${confidence}%`);
-      } else {
-        // Quick mode: single server check
-        const serverResponse = await fetch(`/api/check?url=${encodeURIComponent(cleanInput)}`);
-        const serverData = await serverResponse.json();
-
-        let finalMessage = '';
-        let confidence = 'High';
-        let statusColor = '#94a3b8';
-
-        if (serverData.serverStatus === 'reachable') {
-          finalMessage = '✅ Reachable everywhere — not down or blocked.';
-          statusColor = '#00ff9d';
-        } else {
-          finalMessage = '❌ Unreachable — likely global outage or down for everyone.';
-          statusColor = '#ff4d4d';
-          confidence = 'Medium';
-        }
-
-        setResult(`${finalMessage}\nConfidence: ${confidence}`);
-      }
-
-      setLastChecked(new Date());
-    } catch (err) {
-      setResult('❌ Error checking status. Try again.');
-    } finally {
-      const elapsed = Date.now() - startTime;
-      const delay = Math.max(1500 - elapsed, 0);
-      setTimeout(() => {
-        clearInterval(progressInterval);
-        setProgress(100);
-        setProgressText('Complete');
-        setLoading(false);
-      }, delay);
-    }
-  };
-
-  useEffect(() => {
-    checkSite(decodedSite);
-  }, [decodedSite]);
-
-  const handleRefresh = () => checkSite(decodedSite);
-
-  const handleNewCheck = () => {
-    if (!newUrl.trim()) return;
-    const siteSlug = newUrl.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].replace(/\./g, '-');
-    if (siteSlug) window.location.href = `/status/${siteSlug}`;
-  };
-
-  const timeAgo = () => {
-    const diff = Math.floor((Date.now() - lastChecked.getTime()) / 1000);
-    if (diff < 60) return 'just now';
-    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
-    return `${Math.floor(diff / 3600)} hr ago`;
+    const siteSlug = cleanInput.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].replace(/\./g, '-');
+    window.location.href = `/status/${siteSlug}`;
   };
 
   return (
-    <div style={{
-      padding: 'clamp(80px, 10vw, 120px) clamp(16px, 4vw, 24px) clamp(60px, 8vw, 100px)',
-      margin: '0',
-      fontFamily: 'Arial, sans-serif',
-      background: 'var(--bg-secondary)',
-      color: '#ffffff',
-      minHeight: '100vh',
-      backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(0, 212, 255, 0.12) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(0, 212, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
-      overflowX: 'hidden'
-    }}>
-      <div style={{ maxWidth: 'clamp(360px, 90vw, 720px)', margin: '0 auto' }}>
-        <h1 style={{
-          fontSize: 'clamp(1.8rem, 5vw, 2.5rem)',
-          fontWeight: '900',
-          color: '#ffffff',
-          marginBottom: 'clamp(12px, 3vw, 16px)',
-          textShadow: '0 0 30px rgba(0,212,255,0.6)',
-          textAlign: 'center',
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis'
-        }}>
-          Is {decodedSite} Down or Blocked?
-        </h1>
+    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+      <header className="w-full max-w-6xl flex justify-between items-center mb-12">
+        <h1 className="text-3xl font-bold text-cyan-400">BlockedOrDown.</h1>
+        <nav className="space-x-4">
+          <Link href="/" className="text-gray-300 hover:text-cyan-400">Home</Link>
+          <Link href="/categories" className="text-gray-300 hover:text-cyan-400">Categories</Link>
+          <Link href="/outages" className="text-gray-300 hover:text-cyan-400">Outages</Link>
+          <Link href="/my-ip" className="text-gray-300 hover:text-cyan-400">My IP</Link>
+        </nav>
+      </header>
 
-        <p style={{
-          fontSize: 'clamp(0.9rem, 3vw, 1rem)',
-          color: '#c9d1d9',
-          marginBottom: 'clamp(24px, 5vw, 32px)',
-          textAlign: 'center'
-        }}>
-          Live status check from multiple regions
-        </p>
+      <main className="flex flex-col items-center text-center">
+        <span className="bg-green-900 text-green-400 px-3 py-1 rounded-full mb-4 flex items-center gap-2">
+          <span className="w-2 h-2 bg-green-400 rounded-full"></span> LIVE
+        </span>
+        <h2 className="text-5xl font-bold text-cyan-400 mb-4">Is this site down or blocked?</h2>
+        <p className="text-gray-400 mb-8">Enter any website to get multi-signal status proof in seconds.</p>
 
-        {/* Quick / Deep toggle */}
-  {/* Quick / Deep toggle – nicer switch */}
-<div style={{
-  margin: 'clamp(24px, 5vw, 36px) auto',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  gap: 'clamp(12px, 3vw, 20px)',
-  maxWidth: 'clamp(340px, 80vw, 420px)'
-}}>
-  <span style={{
-    fontSize: 'clamp(0.95rem, 3.5vw, 1.05rem)',
-    color: useDeepCheck ? '#94a3b8' : '#00d4ff',
-    fontWeight: useDeepCheck ? 'normal' : '600',
-    transition: 'all 0.3s ease'
-  }}>
-    Quick
-  </span>
-
-  <label style={{
-    position: 'relative',
-    display: 'inline-block',
-    width: 'clamp(48px, 10vw, 56px)',
-    height: 'clamp(24px, 5vw, 28px)',
-    cursor: 'pointer'
-  }}>
-    <input
-      type="checkbox"
-      checked={useDeepCheck}
-      onChange={(e) => setUseDeepCheck(e.target.checked)}
-      style={{
-        opacity: 0,
-        width: 0,
-        height: 0
-      }}
-    />
-    <span style={{
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: useDeepCheck ? '#00d4ff' : '#4a5568',
-      borderRadius: 'clamp(12px, 3vw, 14px)',
-      transition: 'background-color 0.3s ease',
-      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.3)'
-    }}>
-      <span style={{
-        position: 'absolute',
-        content: '""',
-        height: 'clamp(20px, 4vw, 24px)',
-        width: 'clamp(20px, 4vw, 24px)',
-        left: useDeepCheck ? 'calc(100% - 26px)' : '2px',
-        bottom: '2px',
-        backgroundColor: 'white',
-        borderRadius: '50%',
-        transition: 'all 0.3s ease',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
-      }} />
-    </span>
-  </label>
-
-  <span style={{
-    fontSize: 'clamp(0.95rem, 3.5vw, 1.05rem)',
-    color: useDeepCheck ? '#00d4ff' : '#94a3b8',
-    fontWeight: useDeepCheck ? '600' : 'normal',
-    transition: 'all 0.3s ease'
-  }}>
-    Deep
-  </span>
-</div>
-
-        {/* Loading with % bar */}
-        {loading ? (
-          <div style={{
-            margin: 'clamp(32px, 6vw, 48px) 0',
-            textAlign: 'center',
-            maxWidth: 'clamp(320px, 85vw, 500px)',
-            marginLeft: 'auto',
-            marginRight: 'auto'
-          }}>
-            <div style={{
-              width: '100%',
-              height: '8px',
-              background: 'rgba(0,212,255,0.1)',
-              borderRadius: '4px',
-              overflow: 'hidden',
-              marginBottom: '12px'
-            }}>
-              <div style={{
-                width: `${progress}%`,
-                height: '100%',
-                background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
-                transition: 'width 0.3s ease',
-                borderRadius: '4px'
-              }} />
-            </div>
-            <p style={{ fontSize: '1rem', color: '#c9d1d9', marginBottom: '8px' }}>
-              {progressText} {progress}%
-            </p>
-          </div>
-        ) : result && (
-          <div style={{ 
-            marginTop: 'clamp(32px, 6vw, 48px)',
-            padding: '10px 14px',
-            background: result.includes('✅') ? 'rgba(0,255,157,0.15)' : 'rgba(255,77,77,0.15)',
-            borderRadius: '12px',
-            border: `1px solid ${result.includes('✅') ? 'rgba(0,255,157,0.3)' : 'rgba(255,77,77,0.3)'}`,
-            maxWidth: 'clamp(300px, 85vw, 580px)',
-            margin: '0 auto',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            textAlign: 'center',
-            fontSize: 'clamp(0.9rem, 3.2vw, 1rem)',
-            lineHeight: '1.4',
-            boxShadow: '0 0 16px rgba(0,212,255,0.15)'
-          }}>
-            <span style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', flexShrink: 0 }}>
-              {result.includes('✅') ? '✅' : '❌'}
-            </span>
-            <div style={{ flex: 1 }}>
-              <p style={{ fontWeight: 'bold', margin: '0 0 4px 0' }}>
-                {result.split('\n')[0].replace(/[✅❌]\s*/, '')}
-              </p>
-              <p style={{
-                fontStyle: 'italic',
-                fontSize: 'clamp(0.8rem, 3vw, 0.85rem)',
-                color: '#94a3b8',
-                margin: 0
-              }}>
-                {result.split('\n')[1]}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* User reports + last checked + refresh */}
-        {!loading && result && (
-          <div style={{ marginTop: '20px', textAlign: 'center' }}>
-            <p style={{ fontSize: '0.9rem', color: '#94a3b8', marginBottom: '8px' }}>
-              {reportCount > 0 ? `${reportCount} users reported issues recently` : 'No reports yet'}
-            </p>
-            <button 
-              onClick={handleReport}
-              style={{
-                padding: '8px 16px',
-                fontSize: '0.9rem',
-                background: 'rgba(255,77,77,0.15)',
-                color: '#ff4d4d',
-                border: '1px solid rgba(255,77,77,0.3)',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                marginRight: '16px',
-                transition: 'all 0.2s'
-              }}
-              className="hover:bg-[rgba(255,77,77,0.25)] hover:scale-105"
-            >
-              Report as Down/Blocked
-            </button>
-
-            <button 
-              onClick={() => checkSite(decodedSite)}
-              disabled={loading}
-              style={{
-                padding: '8px 16px',
-                fontSize: '0.9rem',
-                background: 'rgba(0,212,255,0.15)',
-                color: '#00d4ff',
-                border: '1px solid rgba(0,212,255,0.3)',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                transition: 'all 0.2s'
-              }}
-              className="hover:bg-[rgba(0,212,255,0.25)] hover:scale-105"
-            >
-              Refresh
-            </button>
-          </div>
-        )}
-
-        {/* Quick search box */}
-        <div style={{
-          marginTop: 'clamp(24px, 5vw, 36px)',
-          padding: '10px 14px',
-          background: 'rgba(13,17,23,0.7)',
-          borderRadius: '12px',
-          border: '1px solid rgba(0,212,255,0.25)',
-          maxWidth: 'clamp(300px, 85vw, 480px)',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          boxShadow: '0 0 16px rgba(0,212,255,0.15)'
-        }}>
-          <p style={{ 
-            fontSize: 'clamp(0.9rem, 3vw, 0.95rem)', 
-            color: '#c9d1d9', 
-            margin: '0 0 6px 0', 
-            textAlign: 'center' 
-          }}>
-            Check another website
-          </p>
-          <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <input 
-              type="text" 
-              placeholder="e.g., google.com" 
-              value={newUrl}
-              onChange={(e) => setNewUrl(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !loading) {
-                  e.preventDefault();
-                  const siteSlug = newUrl.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].replace(/\./g, '-');
-                  if (siteSlug) window.location.href = `/status/${siteSlug}`;
-                }
-              }}
-              style={{ 
-                flex: 1,
-                padding: '8px 14px', 
-                fontSize: 'clamp(0.85rem, 3vw, 0.95rem)', 
-                borderRadius: '10px 0 0 10px', 
-                border: '1px solid rgba(0,212,255,0.3)', 
-                background: 'rgba(13,17,23,0.7)', 
-                color: '#ffffff', 
-                outline: 'none' 
-              }}
-            />
-            <button 
-              onClick={() => {
-                const siteSlug = newUrl.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].replace(/\./g, '-');
-                if (siteSlug) window.location.href = `/status/${siteSlug}`;
-              }}
-              disabled={loading}
-              style={{ 
-                padding: '8px 18px', 
-                fontSize: 'clamp(0.85rem, 3vw, 0.95rem)', 
-                background: 'linear-gradient(90deg, #00d4ff, #3b82f6)', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '0 10px 10px 0', 
-                cursor: 'pointer' 
-              }}
-            >
-              Check
-            </button>
-          </div>
+        <div className="w-full max-w-2xl flex mb-8">
+          <input
+            type="text"
+            placeholder="e.g., youtube.com or netflix.com"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="flex-grow bg-gray-800 border border-gray-700 rounded-l-full px-6 py-3 text-gray-300 focus:outline-none focus:border-cyan-400"
+          />
+          <button
+            onClick={checkSite}
+            className="bg-gradient-to-r from-cyan-400 to-violet-500 text-white font-semibold rounded-r-full px-8 py-3 hover:from-cyan-300 hover:to-violet-400 transition"
+          >
+            Check Now →
+          </button>
         </div>
 
-        <p style={{
-          marginTop: 'clamp(40px, 8vw, 60px)',
-          textAlign: 'center'
-        }}>
-          <Link href="/" style={{ 
-            padding: 'clamp(12px, 3vw, 14px) clamp(28px, 6vw, 32px)', 
-            fontSize: 'clamp(1rem, 3.5vw, 1.1em)', 
-            background: 'linear-gradient(90deg, #00d4ff, #3b82f6)', 
-            color: 'white', 
-            textDecoration: 'none', 
-            borderRadius: '9999px', 
-            cursor: 'pointer', 
-            boxShadow: '0 0 40px rgba(0,212,255,0.5)', 
-            transition: 'all 0.3s ease'
-          }} className="hover:shadow-[0_0_70px_rgba(0,212,255,0.7)] hover:scale-105">
-            Back to Homepage
-          </Link>
-        </p>
+        <div className="flex space-x-2 mb-16">
+          <Link href="/status/youtube-com" className="bg-gray-800 border border-gray-700 rounded-full px-4 py-2 text-gray-300 hover:border-cyan-400">youtube.com</Link>
+          <Link href="/status/discord-com" className="bg-gray-800 border border-gray-700 rounded-full px-4 py-2 text-gray-300 hover:border-cyan-400">discord.com</Link>
+          <Link href="/status/chatgpt-com" className="bg-gray-800 border border-gray-700 rounded-full px-4 py-2 text-gray-300 hover:border-cyan-400">chatgpt.com</Link>
+          <Link href="/status/tiktok-com" className="bg-gray-800 border border-gray-700 rounded-full px-4 py-2 text-gray-300 hover:border-cyan-400">tiktok.com</Link>
+        </div>
 
-        {/* Explainability note */}
-        <p style={{
-          marginTop: 'clamp(32px, 6vw, 48px)',
-          fontSize: '0.85rem',
-          color: '#94a3b8',
-          textAlign: 'center'
-        }}>
-          Powered by multi-region server checks. Results are indicative — test in browser to confirm.
-        </p>
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
+          <div className="glass-card flex items-center gap-4 p-6">
+            <div className="bg-cyan-900 rounded-full p-3">
+              <svg fill="cyan" width="24" height="24" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-cyan-400">Scan a Category</h3>
+              <p className="text-gray-400">Social • AI • Streaming • Gaming</p>
+            </div>
+          </div>
+          <div className="glass-card flex items-center gap-4 p-6">
+            <div className="bg-violet-900 rounded-full p-3">
+              <svg fill="violet" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-5 5z"/></svg>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-violet-400">Global Outages</h3>
+              <p className="text-gray-400">Live status of major platforms</p>
+            </div>
+          </div>
+          <div className="glass-card flex items-center gap-4 p-6">
+            <div className="bg-mint-900 rounded-full p-3">
+              <svg fill="mint" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-5 5z"/></svg>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-mint-400">Check Your IP</h3>
+              <p className="text-gray-400">ISP, location & connection type</p>
+            </div>
+          </div>
+          <div className="glass-card flex items-center gap-4 p-6">
+            <div className="bg-amber-900 rounded-full p-3">
+              <svg fill="amber" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-5 5z"/></svg>
+            </div>
+            <div>
+              <h3 className="text-xl font-semibold text-amber-400">Most Blocked Sites</h3>
+              <p className="text-gray-400">Popular sites at work & school</p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <footer className="mt-auto p-4 text-center text-gray-500 text-sm">
+        Results are indicative only — advanced filtering may not be detected. • Multi-region proof coming in Phase 3
+      </footer>
     </div>
   );
 }
