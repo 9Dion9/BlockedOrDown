@@ -38,45 +38,45 @@ export default function ClientOutages({ initialStatuses }) {
   });
 
   return (
-    <div style={{ 
-      padding: '100px 20px 80px', 
-      margin: '0', 
-      fontFamily: 'Arial, sans-serif', 
-      background: 'var(--bg-secondary)', 
-      color: 'var(--text-primary)', 
+    <div style={{
+      padding: 'clamp(70px, 8vw, 100px) clamp(16px, 4vw, 24px) clamp(50px, 8vw, 80px)',
+      margin: '0',
+      textAlign: 'center',
+      fontFamily: 'Arial, sans-serif',
+      color: '#ffffff',
       minHeight: '100vh',
-      backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(0, 212, 255, 0.12) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(0, 212, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
-      overflowX: 'hidden'
+      background: 'transparent' // inherits global premium background
     }}>
       {/* Title */}
       <h1 style={{
-        fontSize: '3.5rem',
+        fontSize: 'clamp(2.4rem, 5.5vw, 3.2rem)',
         fontWeight: '900',
         background: 'linear-gradient(90deg, #00d4ff, #3b82f6, #a5b4fc)',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
-        marginBottom: '32px',
-        textAlign: 'center',
-        textShadow: '0 0 50px rgba(0,212,255,0.6)'
+        marginBottom: '20px',
+        textShadow: '0 0 40px rgba(0,212,255,0.6)'
       }}>
         Global Outages Dashboard
       </h1>
 
       <p style={{ 
-        fontSize: '1.4rem', 
+        fontSize: 'clamp(1.1rem, 3vw, 1.3rem)', 
         color: '#c9d1d9', 
-        marginBottom: '48px', 
-        textAlign: 'center' 
+        marginBottom: '32px',
+        maxWidth: '700px',
+        marginLeft: 'auto',
+        marginRight: 'auto'
       }}>
         Live status of major sites (updated every 5 minutes).
       </p>
 
-      {/* Compact list */}
+      {/* Compact pill-shaped outage list */}
       <div style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '12px',
-        maxWidth: '900px',
+        gap: '10px',
+        maxWidth: '760px',
         margin: '0 auto'
       }}>
         {sortedStatuses.map((site) => {
@@ -96,33 +96,47 @@ export default function ClientOutages({ initialStatuses }) {
           }
 
           return (
-            <div key={site.name} style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '16px 24px',
-              background: 'linear-gradient(135deg, #0d1117, #161b22)', 
-              borderRadius: '12px', 
-              boxShadow: '0 4px 20px rgba(0,212,255,0.1)', 
-              border: `1px solid ${status === 'accessible' ? 'rgba(0,212,255,0.3)' : 'rgba(255,77,77,0.3)'}`,
-              transition: 'all 0.3s ease'
-            }} className="hover:shadow-[0_0_40px_rgba(0,212,255,0.5)] hover:scale-[1.01]">
-              <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: '1.2rem', color: '#ffffff', margin: 0 }}>
+            <div 
+              key={site.name}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '12px 18px',
+                background: 'rgba(13,17,23,0.75)',
+                borderRadius: '9999px',
+                border: `1px solid ${status === 'online' ? 'rgba(0,212,255,0.25)' : 'rgba(255,77,77,0.25)'}`,
+                boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+                backdropFilter: 'blur(8px)',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.boxShadow = '0 8px 40px rgba(0,212,255,0.35)';
+                e.currentTarget.style.transform = 'scale(1.01)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              {/* Left: name + detail */}
+              <div style={{ textAlign: 'left' }}>
+                <h3 style={{ fontSize: '1.05rem', color: '#ffffff', margin: 0, fontWeight: '600' }}>
                   {site.name}
                 </h3>
-                <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: '4px' }}>
+                <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '2px' }}>
                   {detail}
                 </p>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              {/* Right: status badge + link */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <span style={{
-                  padding: '6px 16px',
-                  fontSize: '0.9rem',
+                  padding: '6px 14px',
+                  fontSize: '0.8rem',
                   fontWeight: '600',
                   borderRadius: '9999px',
-                  background: status === 'online' ? 'rgba(0,255,157,0.15)' : status === 'down' ? 'rgba(255,77,77,0.15)' : 'rgba(255,165,87,0.15)',
+                  background: status === 'online' ? 'rgba(0,255,157,0.12)' : status === 'down' ? 'rgba(255,77,77,0.12)' : 'rgba(255,165,87,0.12)',
                   color: status === 'online' ? '#00ff9d' : status === 'down' ? '#ff4d4d' : '#ffa657',
                   border: `1px solid ${status === 'online' ? 'rgba(0,255,157,0.3)' : status === 'down' ? 'rgba(255,77,77,0.3)' : 'rgba(255,165,87,0.3)'}`,
                 }}>
@@ -131,7 +145,13 @@ export default function ClientOutages({ initialStatuses }) {
 
                 <Link 
                   href={`/status/${site.name.toLowerCase().replace(/\s+/g, '-')}`}
-                  style={{ color: '#00d4ff', fontSize: '0.9rem', fontWeight: '600', textDecoration: 'none' }}
+                  style={{ 
+                    color: '#00d4ff', 
+                    fontSize: '0.85rem', 
+                    fontWeight: '600',
+                    textDecoration: 'none'
+                  }}
+                  className="hover:underline"
                 >
                   Full Check →
                 </Link>
@@ -141,7 +161,12 @@ export default function ClientOutages({ initialStatuses }) {
         })}
       </div>
 
-      <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: '48px', textAlign: 'center' }}>
+      <p style={{ 
+        color: '#94a3b8', 
+        fontSize: '0.9rem', 
+        marginTop: '32px', 
+        textAlign: 'center' 
+      }}>
         {sortedStatuses.filter(s => s.result.status === 'online').length} online / {sortedStatuses.length} total
       </p>
 
@@ -149,17 +174,17 @@ export default function ClientOutages({ initialStatuses }) {
         <Link 
           href="/" 
           style={{ 
-            padding: '14px 32px', 
-            fontSize: '1.1em', 
+            padding: '12px 32px', 
+            fontSize: '1rem', 
             background: 'linear-gradient(90deg, #00d4ff, #3b82f6)', 
             color: 'white', 
             textDecoration: 'none', 
             borderRadius: '9999px', 
             cursor: 'pointer', 
-            boxShadow: '0 0 40px rgba(0,212,255,0.5)', 
+            boxShadow: '0 0 30px rgba(0,212,255,0.5)', 
             transition: 'all 0.3s ease'
           }}
-          className="hover:shadow-[0_0_70px_rgba(0,212,255,0.7)] hover:scale-105"
+          className="hover:shadow-[0_0_60px_rgba(0,212,255,0.7)] hover:scale-105"
         >
           Back to Homepage
         </Link>

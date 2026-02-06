@@ -6,11 +6,24 @@ import Link from 'next/link';
 export default function MyIpPage() {
   const [ipData, setIpData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
 
   const fetchIpData = async () => {
     setLoading(true);
     setError(null);
+    setProgress(0);
+
+    // Simulate progress (real fetch is fast, this makes it feel premium)
+    const fakeProgress = setInterval(() => {
+      setProgress(prev => {
+        if (prev >= 90) {
+          clearInterval(fakeProgress);
+          return 90;
+        }
+        return prev + 10;
+      });
+    }, 200);
 
     try {
       const ipv4Res = await fetch('https://api.ipify.org?format=json', { cache: 'no-store' });
@@ -42,7 +55,9 @@ export default function MyIpPage() {
       console.error('My IP fetch error:', err);
       setError(err.message || 'Failed to fetch IP data. Try again.');
     } finally {
-      setLoading(false);
+      clearInterval(fakeProgress);
+      setProgress(100);
+      setTimeout(() => setLoading(false), 300); // brief delay for smooth finish
     }
   };
 
@@ -54,40 +69,63 @@ export default function MyIpPage() {
 
   return (
     <div style={{
-      padding: 'clamp(80px, 10vw, 120px) clamp(16px, 4vw, 24px) clamp(60px, 8vw, 100px)',
+      padding: 'clamp(70px, 8vw, 100px) clamp(16px, 4vw, 24px) clamp(50px, 8vw, 80px)',
       margin: '0',
-      textAlign: 'left',
       fontFamily: 'Arial, sans-serif',
-      background: 'var(--bg-secondary)',
       color: '#ffffff',
       minHeight: '100vh',
-      backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(0, 212, 255, 0.12) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(0, 212, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
-      overflowX: 'hidden'
+      background: 'transparent'
     }}>
+      {/* Title */}
+      <h1 style={{
+        fontSize: 'clamp(2.2rem, 5.5vw, 3.2rem)',
+        fontWeight: '900',
+        background: 'linear-gradient(90deg, #00d4ff, #3b82f6, #a5b4fc)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        marginBottom: '24px',
+        textAlign: 'center',
+        textShadow: '0 0 40px rgba(0,212,255,0.6)'
+      }}>
+        My IP Address
+      </h1>
 
       {loading ? (
-        <div style={{ margin: '80px 0' }}>
+        <div style={{ margin: '60px 0', maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
           <div style={{
-            width: '50px',
-            height: '50px',
-            border: '5px solid rgba(0,212,255,0.2)',
-            borderTop: '5px solid #00d4ff',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 0 20px 0'
-          }} />
-          <p style={{ fontSize: '1.2rem', color: '#c9d1d9' }}>Fetching your IP...</p>
+            height: '6px',
+            background: 'rgba(13,17,23,0.6)',
+            borderRadius: '9999px',
+            overflow: 'hidden',
+            boxShadow: '0 0 15px rgba(0,212,255,0.2)'
+          }}>
+            <div style={{
+              width: `${progress}%`,
+              height: '100%',
+              background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
+              transition: 'width 0.4s ease',
+              borderRadius: '9999px'
+            }} />
+          </div>
+          <p style={{ 
+            fontSize: '1.1rem', 
+            color: '#c9d1d9', 
+            marginTop: '12px',
+            textAlign: 'center'
+          }}>
+            Fetching your IP... {progress}%
+          </p>
         </div>
       ) : error ? (
-        <div style={{ margin: '80px 0' }}>
-          <p style={{ fontSize: '1.3rem', color: '#ff4d4d', marginBottom: '24px' }}>
+        <div style={{ margin: '60px 0', textAlign: 'center' }}>
+          <p style={{ fontSize: '1.2rem', color: '#ff4d4d', marginBottom: '24px' }}>
             {error}
           </p>
           <button
             onClick={retry}
             style={{
-              padding: '12px 28px',
-              fontSize: '1rem',
+              padding: '10px 28px',
+              fontSize: '0.95rem',
               background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
               color: 'white',
               border: 'none',
@@ -103,145 +141,165 @@ export default function MyIpPage() {
         </div>
       ) : (
         <>
+          {/* Main info block */}
           <div style={{
-            maxWidth: 'clamp(400px, 90vw, 800px)',
-            margin: '0 auto 60px auto',
-            padding: 'clamp(20px, 5vw, 32px)',
-            background: 'rgba(13,17,23,0.75)',
+            maxWidth: 'clamp(420px, 85vw, 680px)',
+            margin: '0 auto 40px auto',
+            padding: 'clamp(20px, 4vw, 28px)',
+            background: 'rgba(13,17,23,0.35)',
             borderRadius: '20px',
-            border: '1px solid rgba(0,212,255,0.25)',
-            boxShadow: '0 8px 32px rgba(0,212,255,0.25)',
-            backdropFilter: 'blur(12px)',
-            transition: 'all 0.3s ease'
-          }} className="hover:shadow-[0_0_60px_rgba(0,212,255,0.5)]">
-            <p style={{
-              color: '#00d4ff',
-              fontSize: '1.3rem',
-              fontWeight: '600',
-              marginBottom: '20px',
-              textAlign: 'center' // centered title inside box
-            }}>
-              My IP Address is:
-            </p>
+            border: '1px solid rgba(0,212,255,0.15)',
+            boxShadow: '0 8px 32px rgba(0,212,255,0.15)',
+            backdropFilter: 'blur(8px)',
+            textAlign: 'left'
+          }}>
+            {/* IP Addresses */}
+            <div style={{ marginBottom: '24px' }}>
+              <p style={{ 
+                color: '#94a3b8', 
+                fontSize: '0.9rem', 
+                fontWeight: '500', 
+                marginBottom: '6px' 
+              }}>
+                Your IPv4 Address
+              </p>
+              <p style={{
+                fontSize: '1.4rem',
+                fontWeight: 'bold',
+                color: '#ffffff',
+                wordBreak: 'break-all',
+                marginBottom: '16px'
+              }}>
+                {ipData.ipv4 || 'Not detected'}
+              </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-              <div>
-                <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '6px' }}>
-                  IPv4
-                </p>
-                <p style={{
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold',
-                  color: '#ffffff',
-                  wordBreak: 'break-all'
-                }}>
-                  {ipData.ipv4 || 'Not detected'}
-                </p>
-              </div>
-
-              <div>
-                <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '6px' }}>
-                  IPv6
-                </p>
-                <p style={{
-                  fontSize: '1.1rem',
-                  fontWeight: 'bold',
-                  color: '#ffffff',
-                  wordBreak: 'break-all',
-                  hyphens: 'auto'
-                }}>
-                  {ipData.ipv6 || 'Not detected'}
-                </p>
-              </div>
+              <p style={{ 
+                color: '#94a3b8', 
+                fontSize: '0.9rem', 
+                fontWeight: '500', 
+                marginBottom: '6px' 
+              }}>
+                Your IPv6 Address
+              </p>
+              <p style={{
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                color: '#ffffff',
+                wordBreak: 'break-all'
+              }}>
+                {ipData.ipv6 || 'Not detected'}
+              </p>
             </div>
 
+            {/* IP Info */}
             <div style={{
               borderTop: '1px solid rgba(255,255,255,0.08)',
-              paddingTop: '16px'
+              paddingTop: '20px'
             }}>
               <p style={{
                 color: '#00d4ff',
-                fontSize: '1.1rem',
+                fontSize: '1.05rem',
                 fontWeight: '600',
                 marginBottom: '12px'
               }}>
-                My IP Information:
+                IP Details
               </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '12px' }}>
-                  <span style={{ color: '#94a3b8', minWidth: '70px' }}>ISP:</span>
-                  <span style={{ color: '#c9d1d9', fontWeight: '500' }}>
-                    {ipData.isp || 'Unknown'}
-                  </span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.95rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#94a3b8', fontWeight: '500' }}>ISP</span>
+                  <span style={{ color: '#ffffff', fontWeight: '600' }}>{ipData.isp || 'Unknown'}</span>
                 </div>
-
-                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '12px' }}>
-                  <span style={{ color: '#94a3b8', minWidth: '70px' }}>City:</span>
-                  <span style={{ color: '#c9d1d9', fontWeight: '500' }}>
-                    {ipData.city || 'Unknown'}
-                  </span>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#94a3b8', fontWeight: '500' }}>City</span>
+                  <span style={{ color: '#ffffff', fontWeight: '600' }}>{ipData.city || 'Unknown'}</span>
                 </div>
-
-                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '12px' }}>
-                  <span style={{ color: '#94a3b8', minWidth: '70px' }}>Region:</span>
-                  <span style={{ color: '#c9d1d9', fontWeight: '500' }}>
-                    {ipData.region || 'Unknown'}
-                  </span>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#94a3b8', fontWeight: '500' }}>Region</span>
+                  <span style={{ color: '#ffffff', fontWeight: '600' }}>{ipData.region || 'Unknown'}</span>
                 </div>
-
-                <div style={{ display: 'flex', justifyContent: 'flex-start', gap: '12px' }}>
-                  <span style={{ color: '#94a3b8', minWidth: '70px' }}>Country:</span>
-                  <span style={{ color: '#c9d1d9', fontWeight: '500' }}>
-                    {ipData.country || 'Unknown'}
-                  </span>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: '#94a3b8', fontWeight: '500' }}>Country</span>
+                  <span style={{ color: '#ffffff', fontWeight: '600' }}>{ipData.country || 'Unknown'}</span>
                 </div>
               </div>
             </div>
 
-            <div style={{ marginTop: '24px', textAlign: 'center' }}>
-              <p style={{ color: '#ff4d4d', fontSize: '1.1rem', fontWeight: '600' }}>
-                Your location may be exposed!
+            {/* Premium VPN Pitch */}
+            <div style={{ marginTop: '32px', textAlign: 'center' }}>
+              <p style={{ 
+                color: '#ff6b6b', 
+                fontSize: '1.05rem', 
+                fontWeight: 'bold', 
+                marginBottom: '12px' 
+              }}>
+                Your real location & activity are currently exposed
+              </p>
+              <p style={{ 
+                color: '#c9d1d9', 
+                fontSize: '0.9rem', 
+                marginBottom: '20px' 
+              }}>
+                Your ISP, websites, advertisers and even bad actors can track your location, browsing habits and identity right now.
               </p>
               <button
                 style={{
                   padding: '12px 32px',
                   fontSize: '1rem',
-                  background: '#ff4d4d',
+                  background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
                   color: 'white',
                   border: 'none',
-                  borderRadius: '8px',
+                  borderRadius: '9999px',
                   cursor: 'pointer',
                   fontWeight: '600',
-                  margin: '16px auto 0 auto',
-                  display: 'block',
-                  boxShadow: '0 4px 16px rgba(255,77,77,0.3)'
+                  boxShadow: '0 0 30px rgba(0,212,255,0.5)',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.boxShadow = '0 0 60px rgba(0,212,255,0.7)';
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.boxShadow = '0 0 30px rgba(0,212,255,0.5)';
+                  e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
-                HIDE MY IP ADDRESS NOW
+                Protect My Identity Now – Get VPN
               </button>
+              <p style={{ 
+                color: '#94a3b8', 
+                fontSize: '0.8rem', 
+                marginTop: '12px' 
+              }}>
+                Secure • Fast • No-logs • From $3.99/mo
+              </p>
             </div>
           </div>
 
-          <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '40px', textAlign: 'center' }}>
+          <p style={{ 
+            color: '#94a3b8', 
+            fontSize: '0.85rem', 
+            margin: '32px 0', 
+            textAlign: 'center' 
+          }}>
             Data fetched securely from public APIs. Refreshes on reload. No logs stored.
           </p>
 
           <p style={{ textAlign: 'center' }}>
-            <Link
+            <Link 
               href="/"
-              style={{
-                padding: '14px 32px',
-                fontSize: '1.1em',
-                background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
-                color: 'white',
-                textDecoration: 'none',
-                borderRadius: '9999px',
-                cursor: 'pointer',
-                boxShadow: '0 0 40px rgba(0,212,255,0.5)',
+              style={{ 
+                padding: '12px 32px', 
+                fontSize: '1rem', 
+                background: 'linear-gradient(90deg, #00d4ff, #3b82f6)', 
+                color: 'white', 
+                textDecoration: 'none', 
+                borderRadius: '9999px', 
+                cursor: 'pointer', 
+                boxShadow: '0 0 30px rgba(0,212,255,0.5)', 
                 transition: 'all 0.3s ease'
               }}
-              className="hover:shadow-[0_0_70px_rgba(0,212,255,0.7)] hover:scale-105"
+              className="hover:shadow-[0_0_60px_rgba(0,212,255,0.7)] hover:scale-105"
             >
               Back to Homepage
             </Link>

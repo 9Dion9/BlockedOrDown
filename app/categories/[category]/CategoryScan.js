@@ -31,7 +31,7 @@ export default function CategoryScan({ categoryInfo, category }) {
         const siteLower = site.name.toLowerCase();
 
         if (knownPublicSites.includes(siteLower)) {
-          resolve({ site: site.name, status: 'accessible', detail: 'Accessible (public site)' });
+          resolve({ site: site.name, status: 'accessible', detail: 'Public site — accessible' });
           return;
         }
 
@@ -39,42 +39,29 @@ export default function CategoryScan({ categoryInfo, category }) {
           `https://${site.url}/favicon.ico`,
           `https://${site.url}/robots.txt`,
           `https://${site.url}/`,
-          `https://${site.url}/sitemap.xml`,
-          `https://${site.url}/humans.txt`,
-          `https://${site.url}/ads.txt`,
-          `https://${site.url}/manifest.json`,
-          `https://${site.url}/browserconfig.xml`,
-          `https://${site.url}/apple-touch-icon.png`,
-          `https://${site.url}/.well-known/security.txt`
         ];
 
         let success = false;
 
         const tryResource = (index) => {
           if (success || index >= testResources.length) {
-            if (!success) {
-              resolve({ site: site.name, status: 'blocked', detail: 'Failed all tests — likely blocked or site restriction' });
-            }
+            resolve({ site: site.name, status: success ? 'accessible' : 'blocked', detail: success ? 'Reachable' : 'Blocked or restricted' });
             return;
           }
 
-          const url = testResources[index] + '?' + Date.now();
-
-          fetch(url, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' })
+          fetch(testResources[index] + '?' + Date.now(), { method: 'HEAD', mode: 'no-cors', cache: 'no-store' })
             .then(() => {
               success = true;
-              resolve({ site: site.name, status: 'accessible', detail: 'Reachable — not blocked' });
+              resolve({ site: site.name, status: 'accessible', detail: 'Reachable' });
             })
-            .catch(() => {
-              tryResource(index + 1);
-            });
+            .catch(() => tryResource(index + 1));
         };
 
         tryResource(0);
       }));
 
       const batchResults = await Promise.allSettled(batchPromises);
-      newResults.push(...batchResults.map(result => result.value));
+      newResults.push(...batchResults.map(r => r.value || r.reason));
 
       completed += batch.length;
       setProgress(Math.round((completed / categoryInfo.sites.length) * 100));
@@ -86,34 +73,45 @@ export default function CategoryScan({ categoryInfo, category }) {
 
   return (
     <div style={{
-      padding: '100px 16px 80px',
+      padding: 'clamp(70px, 10vw, 100px) clamp(16px, 4vw, 24px) clamp(50px, 8vw, 80px)',
       margin: '0',
       textAlign: 'center',
       fontFamily: 'Arial, sans-serif',
-      background: '#000000',
       color: '#ffffff',
       minHeight: '100vh',
-      backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(0, 212, 255, 0.12) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(0, 212, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
+      background: 'transparent' // ← inherits perfect background from globals.css
     }}>
       {/* Title */}
       <h1 style={{
-        fontSize: '3.2rem',
+        fontSize: 'clamp(2.4rem, 5.5vw, 3.2rem)',
         fontWeight: '900',
         background: 'linear-gradient(90deg, #00d4ff, #3b82f6, #a5b4fc)',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
-        marginBottom: '28px',
-        textShadow: '0 0 50px rgba(0,212,255,0.6)'
+        marginBottom: '20px',
+        textShadow: '0 0 50px rgba(0,212,255,0.7)'
       }}>
         {categoryInfo.title} Scan
       </h1>
 
-      <p style={{ fontSize: '1.3rem', color: '#c9d1d9', marginBottom: '40px' }}>
-        Scan popular {categoryInfo.title.toLowerCase()} sites to see what's blocked.
+      <p style={{ 
+        fontSize: 'clamp(1.1rem, 3vw, 1.3rem)', 
+        color: '#c9d1d9', 
+        marginBottom: '32px',
+        maxWidth: '700px',
+        marginLeft: 'auto',
+        marginRight: 'auto'
+      }}>
+        Scanning popular {categoryInfo.title.toLowerCase()} sites on your current network.
       </p>
 
-      <p style={{ color: '#ff4d4d', fontSize: '0.9rem', marginBottom: '28px' }}>
-        Note: Some sites may show false "Blocked" due to strict security.
+      <p style={{ 
+        color: '#ff6b6b', 
+        fontSize: '0.85rem', 
+        marginBottom: '28px',
+        fontStyle: 'italic'
+      }}>
+        Note: Some false blocks may occur due to strict firewalls.
       </p>
 
       {/* Scan Button */}
@@ -121,101 +119,99 @@ export default function CategoryScan({ categoryInfo, category }) {
         onClick={scanSites}
         disabled={scanning}
         style={{ 
-          padding: '12px 32px', 
+          padding: '12px 36px', 
           fontSize: '1.1rem', 
           background: 'linear-gradient(90deg, #00d4ff, #3b82f6)', 
           color: 'white', 
           border: 'none', 
           borderRadius: '9999px', 
-          cursor: 'pointer', 
-          boxShadow: '0 0 30px rgba(0,212,255,0.5)', 
-          transition: 'all 0.3s ease'
+          cursor: scanning ? 'not-allowed' : 'pointer', 
+          boxShadow: '0 0 40px rgba(0,212,255,0.5)', 
+          transition: 'all 0.3s ease',
+          opacity: scanning ? 0.7 : 1
         }}
-        className="hover:shadow-[0_0_60px_rgba(0,212,255,0.7)] hover:scale-105"
+        className="hover:shadow-[0_0_70px_rgba(0,212,255,0.7)] hover:scale-105"
       >
         {scanning ? 'Scanning...' : 'Start Scan Now'}
       </button>
 
-      <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '24px 0 50px 0' }}>
-        Estimate: 5–20 seconds • Client-side only
-      </p>
-
       {scanning && (
-        <div style={{ margin: '40px 0' }}>
+        <div style={{ margin: '32px auto', maxWidth: '360px' }}>
           <div style={{ 
+            height: '6px', 
             background: 'rgba(13,17,23,0.6)', 
             borderRadius: '9999px', 
-            height: '8px', 
             overflow: 'hidden', 
-            boxShadow: '0 0 15px rgba(0,212,255,0.2)', 
-            maxWidth: '360px', 
-            margin: '0 auto' 
+            boxShadow: '0 0 15px rgba(0,212,255,0.2)'
           }}>
             <div style={{ 
               width: `${progress}%`, 
               height: '100%', 
               background: 'linear-gradient(90deg, #00d4ff, #3b82f6)', 
-              transition: 'width 0.5s' 
-            }}></div>
+              transition: 'width 0.4s ease' 
+            }} />
           </div>
-          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '10px' }}>
-            {progress}%
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '8px' }}>
+            {progress}% complete
           </p>
         </div>
       )}
 
+      {/* Results */}
       {results.length > 0 && (
-        <div style={{ margin: '50px 0' }}>
+        <div style={{ marginTop: '48px' }}>
           <h2 style={{ 
-            fontSize: '2rem', 
+            fontSize: '1.8rem', 
             color: '#00d4ff', 
-            marginBottom: '32px', 
-            textAlign: 'center', 
-            textShadow: '0 0 25px rgba(0,212,255,0.4)' 
+            marginBottom: '24px',
+            textShadow: '0 0 20px rgba(0,212,255,0.4)'
           }}>
             Scan Results
           </h2>
 
-          {/* Compact vertical list */}
           <div style={{
             display: 'flex',
             flexDirection: 'column',
             gap: '10px',
-            maxWidth: '800px',
+            maxWidth: '760px',
             margin: '0 auto'
           }}>
             {results.map((result, i) => (
-              <div key={i} style={{ 
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '14px 20px',
-                background: 'linear-gradient(135deg, #0d1117, #161b22)', 
-                borderRadius: '12px', 
-                boxShadow: '0 4px 16px rgba(0,212,255,0.08)', 
-                border: `1px solid ${result.status === 'accessible' ? 'rgba(0,212,255,0.25)' : 'rgba(239,68,68,0.25)'}`,
-                transition: 'all 0.3s ease'
-              }} className="hover:shadow-[0_0_35px_rgba(0,212,255,0.4)] hover:scale-[1.01]">
-                {/* Left: name + detail */}
-                <div style={{ flex: 1 }}>
-                  <h3 style={{ fontSize: '1.15rem', color: '#ffffff', margin: 0 }}>
+              <div 
+                key={i}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '12px 18px',
+                  background: 'rgba(13,17,23,0.75)',
+                  borderRadius: '9999px',
+                  border: `1px solid ${result.status === 'accessible' ? 'rgba(0,212,255,0.25)' : 'rgba(255,77,77,0.25)'}`,
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+                  transition: 'all 0.3s ease',
+                  backdropFilter: 'blur(8px)'
+                }}
+                onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 40px rgba(0,212,255,0.35)'}
+                onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)'}
+              >
+                <div style={{ textAlign: 'left' }}>
+                  <h3 style={{ fontSize: '1.05rem', color: '#ffffff', margin: 0 }}>
                     {result.site}
                   </h3>
-                  <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '4px' }}>
+                  <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '2px 0 0 0' }}>
                     {result.detail}
                   </p>
                 </div>
 
-                {/* Right: status badge + link */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <span style={{
-                    padding: '5px 14px',
-                    fontSize: '0.85rem',
+                    padding: '6px 14px',
+                    fontSize: '0.8rem',
                     fontWeight: '600',
                     borderRadius: '9999px',
                     background: result.status === 'accessible' ? 'rgba(0,255,157,0.12)' : 'rgba(255,77,77,0.12)',
                     color: result.status === 'accessible' ? '#00ff9d' : '#ff4d4d',
-                    border: `1px solid ${result.status === 'accessible' ? 'rgba(0,255,157,0.25)' : 'rgba(255,77,77,0.25)'}`,
+                    border: `1px solid ${result.status === 'accessible' ? 'rgba(0,255,157,0.3)' : 'rgba(255,77,77,0.3)'}`
                   }}>
                     {result.status === 'accessible' ? 'Accessible' : 'Blocked'}
                   </span>
@@ -225,9 +221,10 @@ export default function CategoryScan({ categoryInfo, category }) {
                     style={{ 
                       color: '#00d4ff', 
                       fontSize: '0.85rem', 
-                      fontWeight: '600', 
-                      textDecoration: 'none' 
+                      fontWeight: '600',
+                      textDecoration: 'none'
                     }}
+                    className="hover:underline"
                   >
                     Full Check →
                   </Link>
@@ -236,17 +233,22 @@ export default function CategoryScan({ categoryInfo, category }) {
             ))}
           </div>
 
-          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '40px', textAlign: 'center' }}>
+          <p style={{ 
+            color: '#94a3b8', 
+            fontSize: '0.9rem', 
+            marginTop: '32px',
+            textAlign: 'center'
+          }}>
             {results.filter(r => r.status === 'accessible').length} / {results.length} accessible
           </p>
         </div>
       )}
 
-      <p style={{ marginTop: '80px', textAlign: 'center' }}>
+      <p style={{ marginTop: '60px', textAlign: 'center' }}>
         <Link 
           href="/categories" 
           style={{ 
-            padding: '10px 32px', 
+            padding: '10px 28px', 
             fontSize: '1rem', 
             background: 'linear-gradient(90deg, #00d4ff, #3b82f6)', 
             color: 'white', 
@@ -256,9 +258,9 @@ export default function CategoryScan({ categoryInfo, category }) {
             boxShadow: '0 0 30px rgba(0,212,255,0.5)', 
             transition: 'all 0.3s ease'
           }}
-          className="hover:shadow-[0_0_50px_rgba(0,212,255,0.7)] hover:scale-105"
+          className="hover:shadow-[0_0_60px_rgba(0,212,255,0.7)] hover:scale-105"
         >
-          Back to Categories
+          ← Back to Categories
         </Link>
       </p>
     </div>
