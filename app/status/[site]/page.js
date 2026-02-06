@@ -6,153 +6,301 @@ import Link from 'next/link';
 export default function Home() {
   const [url, setUrl] = useState('');
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      checkSite();
-    }
-  };
-
   const checkSite = () => {
     if (!url.trim()) return;
-    let cleanInput = url.trim().toLowerCase();
-    if (!cleanInput.startsWith('http://') && !cleanInput.startsWith('https://')) {
-      cleanInput = 'https://' + cleanInput;
-    }
-    const siteSlug = cleanInput.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].replace(/\./g, '-');
-    window.location.href = `/status/${siteSlug}`;
+    let clean = url.trim().toLowerCase();
+    if (!clean.startsWith('http')) clean = 'https://' + clean;
+    const slug = clean.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].replace(/\./g, '-');
+    window.location.href = `/status/${slug}`;
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') checkSite();
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      <header className="w-full max-w-6xl flex justify-between items-center mb-12">
-        <h1 className="text-3xl font-bold text-cyan-400">BlockedOrDown.</h1>
-        <nav className="space-x-4">
-          <Link href="/" className="text-gray-300 hover:text-cyan-400">Home</Link>
-          <Link href="/categories" className="text-gray-300 hover:text-cyan-400">Categories</Link>
-          <Link href="/outages" className="text-gray-300 hover:text-cyan-400">Outages</Link>
-          <Link href="/my-ip" className="text-gray-300 hover:text-cyan-400">My IP</Link>
-        </nav>
-      </header>
+    <div style={{
+      minHeight: '100vh',
+      padding: 'clamp(60px, 8vw, 100px) 16px',
+      textAlign: 'center',
+      background: 'transparent'
+    }}>
+      {/* Hero section */}
+      <div style={{
+        maxWidth: 'clamp(500px, 90vw, 800px)',
+        margin: '0 auto 48px auto'
+      }}>
+        <h1 style={{
+          fontSize: 'clamp(2.2rem, 6vw, 3.4rem)',
+          fontWeight: '900',
+          color: '#00d4ff',
+          marginBottom: '16px',
+          textShadow: '0 0 30px rgba(0,212,255,0.6)'
+        }}>
+          Is this site down or blocked?
+        </h1>
 
-      <main className="flex flex-col items-center text-center">
-        <span className="bg-green-900 text-green-400 px-3 py-1 rounded-full mb-4 flex items-center gap-2">
-          <span className="w-2 h-2 bg-green-400 rounded-full"></span> LIVE
-        </span>
-        <h2 className="text-5xl font-bold text-cyan-400 mb-4">Is this site down or blocked?</h2>
-        <p className="text-gray-400 mb-8">Enter any website to get multi-signal status proof in seconds.</p>
+        <p style={{
+          fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+          color: '#c9d1d9',
+          marginBottom: '32px'
+        }}>
+          Enter any website to get multi-signal status proof in seconds.
+        </p>
 
-{/* Fully responsive search bar */}
-<div style={{
-  width: '100%',
-  maxWidth: 'clamp(500px, 80vw, 700px)',
-  margin: '0 auto 32px auto'
-}}>
-  <div style={{
-    display: 'flex',
-    flexDirection: 'row',
-    background: 'rgba(13,17,23,0.75)',
-    borderRadius: '16px',
-    border: '1px solid rgba(0,212,255,0.35)',
-    boxShadow: '0 0 40px rgba(0,212,255,0.25)',
-    overflow: 'hidden',
-    '@media (max-width: 640px)': {
-      flexDirection: 'column'
-    }
-  }}>
-    <input
-      type="text"
-      placeholder="e.g., youtube.com or netflix.com"
-      value={url}
-      onChange={(e) => setUrl(e.target.value)}
-      onKeyDown={(e) => e.key === 'Enter' && checkSite()}
-      style={{
-        flex: 1,
-        padding: 'clamp(12px, 3vw, 16px) 20px',
-        fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
-        background: 'transparent',
-        border: 'none',
-        color: '#ffffff',
-        outline: 'none',
-        borderRadius: '16px 0 0 16px',
-        '@media (max-width: 640px)': {
-          borderRadius: '16px 16px 0 0'
-        }
-      }}
-    />
-    <button
-      onClick={checkSite}
-      style={{
-        padding: 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)',
-        background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
-        color: 'white',
-        border: 'none',
-        fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
-        fontWeight: '600',
-        cursor: 'pointer',
-        transition: 'all 0.3s',
-        minWidth: 'clamp(120px, 25vw, 160px)',
-        borderRadius: '0 16px 16px 0',
-        '@media (max-width: 640px)': {
-          borderRadius: '0 0 16px 16px',
-          borderTop: '1px solid rgba(0,212,255,0.15)'
-        }
-      }}
-    >
-      Check Now →
-    </button>
-  </div>
-</div>
-
-        <div className="flex space-x-2 mb-16">
-          <Link href="/status/youtube-com" className="bg-gray-800 border border-gray-700 rounded-full px-4 py-2 text-gray-300 hover:border-cyan-400">youtube.com</Link>
-          <Link href="/status/discord-com" className="bg-gray-800 border border-gray-700 rounded-full px-4 py-2 text-gray-300 hover:border-cyan-400">discord.com</Link>
-          <Link href="/status/chatgpt-com" className="bg-gray-800 border border-gray-700 rounded-full px-4 py-2 text-gray-300 hover:border-cyan-400">chatgpt.com</Link>
-          <Link href="/status/tiktok-com" className="bg-gray-800 border border-gray-700 rounded-full px-4 py-2 text-gray-300 hover:border-cyan-400">tiktok.com</Link>
+        {/* Responsive search bar */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'row',
+          background: 'rgba(13,17,23,0.75)',
+          borderRadius: '16px',
+          border: '1px solid rgba(0,212,255,0.35)',
+          boxShadow: '0 0 40px rgba(0,212,255,0.25)',
+          overflow: 'hidden'
+        }}>
+          <input
+            type="text"
+            placeholder="e.g., youtube.com or netflix.com"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            onKeyDown={handleKeyDown}
+            style={{
+              flex: 1,
+              padding: 'clamp(12px, 3vw, 16px) 20px',
+              fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
+              background: 'transparent',
+              border: 'none',
+              color: '#ffffff',
+              outline: 'none',
+              borderRadius: '16px 0 0 16px'
+            }}
+          />
+          <button
+            onClick={checkSite}
+            style={{
+              padding: 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)',
+              background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
+              color: 'white',
+              border: 'none',
+              fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.3s',
+              minWidth: 'clamp(140px, 30vw, 180px)',
+              borderRadius: '0 16px 16px 0'
+            }}
+          >
+            Check Now →
+          </button>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
-          <div className="glass-card flex items-center gap-4 p-6">
-            <div className="bg-cyan-900 rounded-full p-3">
-              <svg fill="cyan" width="24" height="24" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-cyan-400">Scan a Category</h3>
-              <p className="text-gray-400">Social • AI • Streaming • Gaming</p>
-            </div>
-          </div>
-          <div className="glass-card flex items-center gap-4 p-6">
-            <div className="bg-violet-900 rounded-full p-3">
-              <svg fill="violet" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-5 5z"/></svg>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-violet-400">Global Outages</h3>
-              <p className="text-gray-400">Live status of major platforms</p>
-            </div>
-          </div>
-          <div className="glass-card flex items-center gap-4 p-6">
-            <div className="bg-mint-900 rounded-full p-3">
-              <svg fill="mint" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-5 5z"/></svg>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-mint-400">Check Your IP</h3>
-              <p className="text-gray-400">ISP, location & connection type</p>
-            </div>
-          </div>
-          <div className="glass-card flex items-center gap-4 p-6">
-            <div className="bg-amber-900 rounded-full p-3">
-              <svg fill="amber" width="24" height="24" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-5 5z"/></svg>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold text-amber-400">Most Blocked Sites</h3>
-              <p className="text-gray-400">Popular sites at work & school</p>
-            </div>
-          </div>
-        </div>
-      </main>
+      {/* Quick chips */}
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '12px',
+        justifyContent: 'center',
+        marginBottom: '48px'
+      }}>
+        {['youtube.com', 'discord.com', 'chatgpt.com', 'tiktok.com'].map(site => (
+          <Link
+            key={site}
+            href={`/status/${site.replace(/\./g, '-')}`}
+            style={{
+              padding: '10px 18px',
+              background: 'rgba(13,17,23,0.65)',
+              border: '1px solid rgba(0,212,255,0.3)',
+              borderRadius: '12px',
+              color: '#ffffff',
+              textDecoration: 'none',
+              fontSize: '0.95rem',
+              transition: 'all 0.3s'
+            }}
+          >
+            {site}
+          </Link>
+        ))}
+      </div>
 
-      <footer className="mt-auto p-4 text-center text-gray-500 text-sm">
+      {/* Compact feature cards */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+        gap: 'clamp(12px, 2vw, 16px)',
+        maxWidth: 'clamp(500px, 90vw, 800px)',
+        margin: '0 auto'
+      }}>
+        <Link href="/categories" style={{ textDecoration: 'none' }}>
+          <div className="glass" style={{
+            padding: '16px',
+            borderRadius: '14px',
+            border: '1px solid rgba(0,212,255,0.25)',
+            boxShadow: '0 4px 16px rgba(0,212,255,0.15)',
+            background: 'rgba(13,17,23,0.75)',
+            backdropFilter: 'blur(10px)',
+            transition: 'all 0.3s ease',
+            cursor: 'pointer',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            <div style={{
+              width: '28px',
+              height: '28px',
+              background: 'rgba(0,212,255,0.15)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 0 10px rgba(0,212,255,0.35)'
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" strokeWidth="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </div>
+            <h3 style={{ fontSize: '0.95rem', fontWeight: '600', color: '#00d4ff', margin: 0 }}>
+              Scan a Category
+            </h3>
+            <p style={{ fontSize: '0.75rem', color: '#c9d1d9', margin: 0, lineHeight: '1.2' }}>
+              Social·AI·Streaming·Gaming
+            </p>
+          </div>
+        </Link>
+
+        <Link href="/outages" style={{ textDecoration: 'none' }}>
+          <div className="glass" style={{
+            padding: '16px',
+            borderRadius: '14px',
+            border: '1px solid rgba(139, 92, 246, 0.25)',
+            boxShadow: '0 4px 16px rgba(139,92,246,0.15)',
+            background: 'rgba(13,17,23,0.75)',
+            backdropFilter: 'blur(10px)',
+            transition: 'all 0.3s ease',
+            cursor: 'pointer',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            <div style={{
+              width: '28px',
+              height: '28px',
+              background: 'rgba(139,92,246,0.15)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 0 10px rgba(139,92,246,0.35)'
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2">
+                <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              </svg>
+            </div>
+            <h3 style={{ fontSize: '0.95rem', fontWeight: '600', color: '#8b5cf6', margin: 0 }}>
+              Global Outages
+            </h3>
+            <p style={{ fontSize: '0.75rem', color: '#c9d1d9', margin: 0, lineHeight: '1.2' }}>
+              Live status of major platforms
+            </p>
+          </div>
+        </Link>
+
+        <Link href="/my-ip" style={{ textDecoration: 'none' }}>
+          <div className="glass" style={{
+            padding: '16px',
+            borderRadius: '14px',
+            border: '1px solid rgba(0, 255, 157, 0.25)',
+            boxShadow: '0 4px 16px rgba(0,255,157,0.15)',
+            background: 'rgba(13,17,23,0.75)',
+            backdropFilter: 'blur(10px)',
+            transition: 'all 0.3s ease',
+            cursor: 'pointer',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            <div style={{
+              width: '28px',
+              height: '28px',
+              background: 'rgba(0,255,157,0.15)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 0 10px rgba(0,255,157,0.35)'
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00ff9d" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="6" />
+                <circle cx="12" cy="12" r="2" />
+              </svg>
+            </div>
+            <h3 style={{ fontSize: '0.95rem', fontWeight: '600', color: '#00ff9d', margin: 0 }}>
+              Check Your IP
+            </h3>
+            <p style={{ fontSize: '0.75rem', color: '#c9d1d9', margin: 0, lineHeight: '1.2' }}>
+              ISP, location & connection type
+            </p>
+          </div>
+        </Link>
+
+        <Link href="/popular-blocked" style={{ textDecoration: 'none' }}>
+          <div className="glass" style={{
+            padding: '16px',
+            borderRadius: '14px',
+            border: '1px solid rgba(255, 166, 87, 0.25)',
+            boxShadow: '0 4px 16px rgba(255,166,87,0.15)',
+            background: 'rgba(13,17,23,0.75)',
+            backdropFilter: 'blur(10px)',
+            transition: 'all 0.3s ease',
+            cursor: 'pointer',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            <div style={{
+              width: '28px',
+              height: '28px',
+              background: 'rgba(255,166,87,0.15)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 0 10px rgba(255,166,87,0.35)'
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffa657" strokeWidth="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+              </svg>
+            </div>
+            <h3 style={{ fontSize: '0.95rem', fontWeight: '600', color: '#ffa657', margin: 0 }}>
+              Most Blocked Sites
+            </h3>
+            <p style={{ fontSize: '0.75rem', color: '#c9d1d9', margin: 0, lineHeight: '1.2' }}>
+              Popular sites at work & school
+            </p>
+          </div>
+        </Link>
+      </div>
+
+      <p style={{
+        marginTop: '60px',
+        fontSize: '0.85rem',
+        color: '#94a3b8',
+        textAlign: 'center'
+      }}>
         Results are indicative only — advanced filtering may not be detected. • Multi-region proof coming in Phase 3
-      </footer>
+      </p>
     </div>
   );
 }
