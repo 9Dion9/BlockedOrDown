@@ -31,7 +31,12 @@ export default function CategoryScan({ categoryInfo, category }) {
         const siteLower = site.name.toLowerCase();
 
         if (knownPublicSites.includes(siteLower)) {
-          resolve({ site: site.name, status: 'accessible', detail: 'Public site — accessible' });
+          resolve({
+            name: site.name,
+            domain: site.url,  // e.g. "chatgpt.com"
+            status: 'accessible',
+            detail: 'Public site — accessible'
+          });
           return;
         }
 
@@ -45,14 +50,24 @@ export default function CategoryScan({ categoryInfo, category }) {
 
         const tryResource = (index) => {
           if (success || index >= testResources.length) {
-            resolve({ site: site.name, status: success ? 'accessible' : 'blocked', detail: success ? 'Reachable' : 'Blocked or restricted' });
+            resolve({
+              name: site.name,
+              domain: site.url,
+              status: success ? 'accessible' : 'blocked',
+              detail: success ? 'Reachable' : 'Blocked or restricted'
+            });
             return;
           }
 
-          fetch(testResources[index] + '?' + Date.now(), { method: 'HEAD', mode: 'no-cors', cache: 'no-store' })
+          fetch(testResources[index] + '?' + Date.now(), { method: 'GET', mode: 'no-cors', cache: 'no-store' })
             .then(() => {
               success = true;
-              resolve({ site: site.name, status: 'accessible', detail: 'Reachable' });
+              resolve({
+                name: site.name,
+                domain: site.url,
+                status: 'accessible',
+                detail: 'Reachable'
+              });
             })
             .catch(() => tryResource(index + 1));
         };
@@ -79,7 +94,7 @@ export default function CategoryScan({ categoryInfo, category }) {
       fontFamily: 'Arial, sans-serif',
       color: '#ffffff',
       minHeight: '100vh',
-      background: 'transparent' // ← inherits perfect background from globals.css
+      background: 'transparent'
     }}>
       {/* Title */}
       <h1 style={{
@@ -176,61 +191,74 @@ export default function CategoryScan({ categoryInfo, category }) {
             maxWidth: '760px',
             margin: '0 auto'
           }}>
-            {results.map((result, i) => (
-              <div 
-                key={i}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '12px 18px',
-                  background: 'rgba(13,17,23,0.75)',
-                  borderRadius: '9999px',
-                  border: `1px solid ${result.status === 'accessible' ? 'rgba(0,212,255,0.25)' : 'rgba(255,77,77,0.25)'}`,
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
-                  transition: 'all 0.3s ease',
-                  backdropFilter: 'blur(8px)'
-                }}
-                onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 40px rgba(0,212,255,0.35)'}
-                onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)'}
-              >
-                <div style={{ textAlign: 'left' }}>
-                  <h3 style={{ fontSize: '1.05rem', color: '#ffffff', margin: 0 }}>
-                    {result.site}
-                  </h3>
-                  <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '2px 0 0 0' }}>
-                    {result.detail}
-                  </p>
-                </div>
+            {results.map((result, i) => {
+              // Generate correct domain-based slug
+              const slug = result.domain 
+                ? result.domain.toLowerCase().replace(/\./g, '-') 
+                : result.name.toLowerCase().replace(/\s+/g, '-').replace(/\./g, '-');
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span style={{
-                    padding: '6px 14px',
-                    fontSize: '0.8rem',
-                    fontWeight: '600',
+              return (
+                <div 
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px 18px',
+                    background: 'rgba(13,17,23,0.75)',
                     borderRadius: '9999px',
-                    background: result.status === 'accessible' ? 'rgba(0,255,157,0.12)' : 'rgba(255,77,77,0.12)',
-                    color: result.status === 'accessible' ? '#00ff9d' : '#ff4d4d',
-                    border: `1px solid ${result.status === 'accessible' ? 'rgba(0,255,157,0.3)' : 'rgba(255,77,77,0.3)'}`
-                  }}>
-                    {result.status === 'accessible' ? 'Accessible' : 'Blocked'}
-                  </span>
+                    border: `1px solid ${result.status === 'accessible' ? 'rgba(0,212,255,0.25)' : 'rgba(255,77,77,0.25)'}`,
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+                    transition: 'all 0.3s ease',
+                    backdropFilter: 'blur(8px)'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.boxShadow = '0 8px 40px rgba(0,212,255,0.35)';
+                    e.currentTarget.style.transform = 'scale(1.01)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                >
+                  <div style={{ textAlign: 'left' }}>
+                    <h3 style={{ fontSize: '1.05rem', color: '#ffffff', margin: 0 }}>
+                      {result.name}
+                    </h3>
+                    <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: '2px 0 0 0' }}>
+                      {result.detail}
+                    </p>
+                  </div>
 
-                  <Link 
-                    href={`/status/${result.site.toLowerCase().replace(/\s+/g, '-')}`}
-                    style={{ 
-                      color: '#00d4ff', 
-                      fontSize: '0.85rem', 
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{
+                      padding: '6px 14px',
+                      fontSize: '0.8rem',
                       fontWeight: '600',
-                      textDecoration: 'none'
-                    }}
-                    className="hover:underline"
-                  >
-                    Full Check →
-                  </Link>
+                      borderRadius: '9999px',
+                      background: result.status === 'accessible' ? 'rgba(0,255,157,0.12)' : 'rgba(255,77,77,0.12)',
+                      color: result.status === 'accessible' ? '#00ff9d' : '#ff4d4d',
+                      border: `1px solid ${result.status === 'accessible' ? 'rgba(0,255,157,0.3)' : 'rgba(255,77,77,0.3)'}`,
+                    }}>
+                      {result.status === 'accessible' ? 'Accessible' : 'Blocked'}
+                    </span>
+
+                    <Link 
+                      href={`/status/${slug}`}
+                      style={{ 
+                        color: '#00d4ff', 
+                        fontSize: '0.85rem', 
+                        fontWeight: '600',
+                        textDecoration: 'none'
+                      }}
+                      className="hover:underline"
+                    >
+                      Full Check →
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <p style={{ 

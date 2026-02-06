@@ -76,20 +76,7 @@ if (useDeepCheck) {
 
   try {
     const workerUrl = `https://broken-queen-7e63.dionmain.workers.dev/?url=${encodeURIComponent(cleanInput)}`;
-
-    let res = await fetch(workerUrl, {
-      headers: { 'Cache-Control': 'no-cache' },
-      signal: AbortSignal.timeout(30000)
-    });
-
-    if (res.status === 429) {
-      setProgressText('Rate limit hit — retrying...');
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      res = await fetch(workerUrl, {
-        headers: { 'Cache-Control': 'no-cache' },
-        signal: AbortSignal.timeout(30000)
-      });
-    }
+    const res = await fetch(workerUrl, { cache: 'no-store' });
 
     if (!res.ok) throw new Error(`Worker returned ${res.status}`);
 
@@ -97,35 +84,27 @@ if (useDeepCheck) {
     reachable = data.reachable;
     errorMsg = data.error || null;
     region = data.region || 'unknown';
-
-    setProgress(100);
-    setProgressText('Complete');
   } catch (err) {
     console.error('Deep check failed:', err);
     reachable = false;
-    errorMsg = err.name === 'TimeoutError' ? 'Timeout (site slow or blocked)' : err.message;
-    setProgress(100);
-    setProgressText('Error');
+    errorMsg = err.message;
   }
 
-  // Final result - premium, strict, with clear status emojis
   let finalMessage = '';
-  let statusColor = '#94a3b8'; // default gray
   let confidence = reachable ? 100 : 0;
 
   if (reachable) {
     finalMessage = `✅ The site is reachable from global edge infrastructure${region !== 'unknown' ? ` (${region})` : ''}.\nNo widespread outage or block detected.`;
-    statusColor = '#00ff9d'; // green
   } else if (errorMsg && errorMsg.includes('Timeout')) {
     finalMessage = `⚠️ Mixed signal — site responded slowly or timed out from edge (${region !== 'unknown' ? region : 'unknown'}).\nPossible regional block or performance issue.\n(${errorMsg})`;
-    statusColor = '#ffa657'; // orange warning
     confidence = 50;
   } else {
     finalMessage = `❌ The site is unreachable from global edge infrastructure${region !== 'unknown' ? ` (${region})` : ''}.\nLikely global outage, regional restriction, or severe block.\n(${errorMsg || 'No response received'})`;
-    statusColor = '#ff4d4d'; // red
   }
 
   setResult(finalMessage + `\nConfidence: ${confidence}%`);
+  setProgress(100);
+  setProgressText('Complete');
 } else {
   // Quick mode
   const serverResponse = await fetch(`/api/check?url=${encodeURIComponent(cleanInput)}`);

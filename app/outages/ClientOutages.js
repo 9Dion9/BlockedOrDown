@@ -45,7 +45,7 @@ export default function ClientOutages({ initialStatuses }) {
       fontFamily: 'Arial, sans-serif',
       color: '#ffffff',
       minHeight: '100vh',
-      background: 'transparent' // inherits global premium background
+      background: 'transparent'
     }}>
       {/* Title */}
       <h1 style={{
@@ -94,6 +94,9 @@ export default function ClientOutages({ initialStatuses }) {
             text = 'Error';
             detail = `${code || 'Unknown'} • ${getRelativeTime(timestamp)}`;
           }
+
+          // Clean slug for Full Check link
+          const slug = `${site.name.toLowerCase()}-com`.replace(/\s+/g, '-');
 
           return (
             <div 
@@ -144,7 +147,7 @@ export default function ClientOutages({ initialStatuses }) {
                 </span>
 
                 <Link 
-                  href={`/status/${site.name.toLowerCase().replace(/\s+/g, '-')}`}
+                  href={`/status/${slug}`}
                   style={{ 
                     color: '#00d4ff', 
                     fontSize: '0.85rem', 
