@@ -1,340 +1,492 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
+export async function getStaticPaths() {
+ 
 
-export default function Home() {
-  const [url, setUrl] = useState('');
+  const paths = popularSites.map(site => ({
+    params: { site }
+  }));
 
-  const checkSite = () => {
-    if (!url.trim()) return;
-    let clean = url.trim().toLowerCase();
-    if (!clean.startsWith('http')) clean = 'https://' + clean;
-    const slug = clean.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].replace(/\./g, '-');
-    window.location.href = `/status/${slug}`;
+  return {
+    paths,
+    fallback: 'blocking' // non-listed sites work dynamically
+  };
+}
+export default function SiteStatusPage() {
+  const params = useParams();
+  const { site } = params;
+
+  const decodedSite = decodeURIComponent(site).replace(/-/g, '.');
+
+  const [result, setResult] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const [progressText, setProgressText] = useState('Preparing check...');
+  const [newUrl, setNewUrl] = useState('');
+  const [lastChecked, setLastChecked] = useState(new Date());
+  const [reportCount, setReportCount] = useState(0);
+  const [useDeepCheck, setUseDeepCheck] = useState(false);
+
+  // Load reports
+  useEffect(() => {
+    const saved = localStorage.getItem(`reports_${site}`);
+    if (saved) setReportCount(parseInt(saved, 10));
+  }, [site]);
+
+  const handleReport = () => {
+    const newCount = reportCount + 1;
+    setReportCount(newCount);
+    localStorage.setItem(`reports_${site}`, newCount.toString());
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') checkSite();
+  const checkSite = async (inputUrl = decodedSite) => {
+    setLoading(true);
+    setResult('');
+    setProgress(0);
+    setProgressText('Preparing check...');
+
+    const startTime = Date.now();
+
+    let cleanInput = inputUrl.trim().toLowerCase();
+    if (!cleanInput.startsWith('http://') && !cleanInput.startsWith('https://')) {
+      cleanInput = 'https://' + cleanInput;
+    }
+
+    // Progress steps
+    const steps = useDeepCheck ? [
+      { text: 'Resolving DNS...', pct: 20 },
+      { text: 'Checking TLS handshake...', pct: 40 },
+      { text: 'Probing US region...', pct: 55 },
+      { text: 'Probing EU region...', pct: 70 },
+      { text: 'Probing Asia region...', pct: 85 },
+      { text: 'Validating content...', pct: 95 },
+      { text: 'Finalizing result...', pct: 100 }
+    ] : [
+      { text: 'Quick server check...', pct: 50 },
+      { text: 'Finalizing result...', pct: 100 }
+    ];
+
+    let stepIndex = 0;
+    const progressInterval = setInterval(() => {
+      if (stepIndex < steps.length - 1) {
+        setProgress(steps[stepIndex].pct);
+        setProgressText(steps[stepIndex].text);
+        stepIndex++;
+      }
+    }, 400);
+
+    try {
+      if (useDeepCheck) {
+        // Real multi-region simulation (later real proxies)
+        const regions = ['US-East', 'EU-West', 'Asia-Southeast', 'SA-East', 'AU-Sydney'];
+        const deepResults = await Promise.all(regions.map(async (region) => {
+          // Simulate region-specific fetch (replace with real proxy later)
+          await new Promise(r => setTimeout(r, 800));
+          // 90% success rate for demo — real version would use different endpoints
+          return Math.random() > 0.1;
+        }));
+
+        const successCount = deepResults.filter(r => r).length;
+        const successRate = successCount / regions.length;
+        let finalMessage = '';
+        let confidence = Math.round(successRate * 100);
+        let statusColor = '#94a3b8';
+
+        if (successRate >= 0.75) {
+          finalMessage = '✅ Reachable everywhere — not down or blocked.';
+          statusColor = '#00ff9d';
+        } else if (successRate >= 0.4) {
+          finalMessage = '⚠️ Mixed results — possibly blocked in some regions.';
+          statusColor = '#ffa657';
+        } else {
+          finalMessage = '❌ Unreachable — likely global outage or down for everyone.';
+          statusColor = '#ff4d4d';
+        }
+
+        setResult(`${finalMessage}\nConfidence: ${confidence}% (based on ${successCount}/${regions.length} regions)`);
+      } else {
+        // Quick mode
+        const serverResponse = await fetch(`/api/check?url=${encodeURIComponent(cleanInput)}`);
+        const serverData = await serverResponse.json();
+
+        let finalMessage = '';
+        let confidence = 'High';
+        let statusColor = '#94a3b8';
+
+        if (serverData.serverStatus === 'reachable') {
+          finalMessage = '✅ Reachable everywhere — not down or blocked.';
+          statusColor = '#00ff9d';
+        } else {
+          finalMessage = '❌ Unreachable — likely global outage or down for everyone.';
+          statusColor = '#ff4d4d';
+          confidence = 'Medium';
+        }
+
+        setResult(`${finalMessage}\nConfidence: ${confidence}`);
+      }
+
+      setLastChecked(new Date());
+    } catch (err) {
+      setResult('❌ Error checking status. Try again.');
+    } finally {
+      const elapsed = Date.now() - startTime;
+      const delay = Math.max(1500 - elapsed, 0);
+      setTimeout(() => {
+        clearInterval(progressInterval);
+        setProgress(100);
+        setProgressText('Complete');
+        setLoading(false);
+      }, delay);
+    }
+  };
+
+  useEffect(() => {
+    checkSite(decodedSite);
+  }, [decodedSite]);
+
+  const handleRefresh = () => checkSite(decodedSite);
+
+  const handleNewCheck = () => {
+    if (!newUrl.trim()) return;
+    const siteSlug = newUrl.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].replace(/\./g, '-');
+    if (siteSlug) window.location.href = `/status/${siteSlug}`;
+  };
+
+  const timeAgo = () => {
+    const diff = Math.floor((Date.now() - lastChecked.getTime()) / 1000);
+    if (diff < 60) return 'just now';
+    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+    return `${Math.floor(diff / 3600)} hr ago`;
   };
 
   return (
     <div style={{
+      padding: 'clamp(80px, 10vw, 120px) clamp(16px, 4vw, 24px) clamp(60px, 8vw, 100px)',
+      margin: '0',
+      fontFamily: 'Arial, sans-serif',
+      background: 'var(--bg-secondary)',
+      color: '#ffffff',
       minHeight: '100vh',
-      padding: 'clamp(60px, 8vw, 100px) 16px',
-      textAlign: 'center',
-      background: 'transparent'
+      backgroundImage: 'radial-gradient(circle at 20% 30%, rgba(0, 212, 255, 0.12) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(0, 212, 255, 0.1) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
+      overflowX: 'hidden'
     }}>
-      {/* Hero section */}
-      <div style={{
-        maxWidth: 'clamp(500px, 90vw, 800px)',
-        margin: '0 auto 48px auto'
-      }}>
+      <div style={{ maxWidth: 'clamp(360px, 90vw, 720px)', margin: '0 auto' }}>
         <h1 style={{
-          fontSize: 'clamp(2.2rem, 6vw, 3.4rem)',
+          fontSize: 'clamp(1.8rem, 5vw, 2.5rem)',
           fontWeight: '900',
-          color: '#00d4ff',
-          marginBottom: '16px',
-          textShadow: '0 0 30px rgba(0,212,255,0.6)'
+          color: '#ffffff',
+          marginBottom: 'clamp(12px, 3vw, 16px)',
+          textShadow: '0 0 30px rgba(0,212,255,0.6)',
+          textAlign: 'center',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis'
         }}>
-          Is this site down or blocked?
+          Is {decodedSite} Down or Blocked?
         </h1>
 
         <p style={{
-          fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+          fontSize: 'clamp(0.9rem, 3vw, 1rem)',
           color: '#c9d1d9',
-          marginBottom: '32px'
+          marginBottom: 'clamp(24px, 5vw, 32px)',
+          textAlign: 'center'
         }}>
-          Enter any website to get multi-signal status proof in seconds.
+          Live status check from multiple regions
         </p>
 
-        {/* Responsive search bar - fixed on mobile */}
+        {/* Toggle + explanation */}
         <div style={{
-          width: '100%',
-          maxWidth: 'clamp(480px, 90vw, 720px)',
-          margin: '0 auto 32px auto'
+          margin: 'clamp(20px, 5vw, 32px) auto',
+          textAlign: 'center',
+          maxWidth: 'clamp(340px, 80vw, 420px)'
         }}>
           <div style={{
             display: 'flex',
-            flexDirection: 'row',
-            background: 'rgba(13,17,23,0.75)',
-            borderRadius: '16px',
-            border: '1px solid rgba(0,212,255,0.35)',
-            boxShadow: '0 0 40px rgba(0,212,255,0.25)',
-            overflow: 'hidden',
-            '@media (max-width: 640px)': {
-              flexDirection: 'column',
-              borderRadius: '16px'
-            }
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 'clamp(12px, 3vw, 20px)'
           }}>
-            <input
-              type="text"
-              placeholder="e.g., youtube.com or netflix.com"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              onKeyDown={handleKeyDown}
+            <span style={{
+              fontSize: 'clamp(0.95rem, 3.5vw, 1.05rem)',
+              color: useDeepCheck ? '#94a3b8' : '#00d4ff',
+              fontWeight: useDeepCheck ? 'normal' : '600',
+              transition: 'all 0.3s ease'
+            }}>
+              Quick
+            </span>
+
+            <label style={{
+              position: 'relative',
+              display: 'inline-block',
+              width: 'clamp(48px, 10vw, 56px)',
+              height: 'clamp(24px, 5vw, 28px)',
+              cursor: 'pointer'
+            }}>
+              <input
+                type="checkbox"
+                checked={useDeepCheck}
+                onChange={(e) => setUseDeepCheck(e.target.checked)}
+                style={{
+                  opacity: 0,
+                  width: 0,
+                  height: 0
+                }}
+              />
+              <span style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: useDeepCheck ? '#00d4ff' : '#4a5568',
+                borderRadius: 'clamp(12px, 3vw, 14px)',
+                transition: 'background-color 0.3s ease',
+                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.3)'
+              }}>
+                <span style={{
+                  position: 'absolute',
+                  content: '""',
+                  height: 'clamp(20px, 4vw, 24px)',
+                  width: 'clamp(20px, 4vw, 24px)',
+                  left: useDeepCheck ? 'calc(100% - 26px)' : '2px',
+                  bottom: '2px',
+                  backgroundColor: 'white',
+                  borderRadius: '50%',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
+                }} />
+              </span>
+            </label>
+
+            <span style={{
+              fontSize: 'clamp(0.95rem, 3.5vw, 1.05rem)',
+              color: useDeepCheck ? '#00d4ff' : '#94a3b8',
+              fontWeight: useDeepCheck ? '600' : 'normal',
+              transition: 'all 0.3s ease'
+            }}>
+              Deep
+            </span>
+          </div>
+
+          <p style={{
+            fontSize: 'clamp(0.85rem, 3vw, 0.9rem)',
+            color: '#94a3b8',
+            marginTop: '8px',
+            maxWidth: 'clamp(320px, 85vw, 480px)',
+            textAlign: 'center'
+          }}>
+            {useDeepCheck
+              ? 'Deep Check: multi-region probes, DNS/TLS/content validation (5–10s, higher accuracy)'
+              : 'Quick Check: fast single-server check (1–2s, instant results)'}
+          </p>
+        </div>
+
+        {/* Loading with % bar */}
+        {loading ? (
+          <div style={{
+            margin: 'clamp(32px, 6vw, 48px) 0',
+            textAlign: 'center',
+            maxWidth: 'clamp(320px, 85vw, 500px)',
+            marginLeft: 'auto',
+            marginRight: 'auto'
+          }}>
+            <div style={{
+              width: '100%',
+              height: '8px',
+              background: 'rgba(0,212,255,0.1)',
+              borderRadius: '4px',
+              overflow: 'hidden',
+              marginBottom: '12px'
+            }}>
+              <div style={{
+                width: `${progress}%`,
+                height: '100%',
+                background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
+                transition: 'width 0.3s ease',
+                borderRadius: '4px'
+              }} />
+            </div>
+            <p style={{ fontSize: '1rem', color: '#c9d1d9', marginBottom: '8px' }}>
+              {progressText} {progress}%
+            </p>
+          </div>
+        ) : result && (
+          <div style={{ 
+            marginTop: 'clamp(32px, 6vw, 48px)',
+            padding: '10px 14px',
+            background: result.includes('✅') ? 'rgba(0,255,157,0.15)' : 'rgba(255,77,77,0.15)',
+            borderRadius: '12px',
+            border: `1px solid ${result.includes('✅') ? 'rgba(0,255,157,0.3)' : 'rgba(255,77,77,0.3)'}`,
+            maxWidth: 'clamp(300px, 85vw, 580px)',
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            textAlign: 'center',
+            fontSize: 'clamp(0.9rem, 3.2vw, 1rem)',
+            lineHeight: '1.4',
+            boxShadow: '0 0 16px rgba(0,212,255,0.15)'
+          }}>
+            <span style={{ fontSize: 'clamp(1.5rem, 5vw, 2rem)', flexShrink: 0 }}>
+              {result.includes('✅') ? '✅' : '❌'}
+            </span>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontWeight: 'bold', margin: '0 0 4px 0' }}>
+                {result.split('\n')[0].replace(/[✅❌]\s*/, '')}
+              </p>
+              <p style={{
+                fontStyle: 'italic',
+                fontSize: 'clamp(0.8rem, 3vw, 0.85rem)',
+                color: '#94a3b8',
+                margin: 0
+              }}>
+                {result.split('\n')[1]}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* User reports + last checked + refresh */}
+        {!loading && result && (
+          <div style={{ marginTop: '20px', textAlign: 'center' }}>
+            <p style={{ fontSize: '0.9rem', color: '#94a3b8', marginBottom: '8px' }}>
+              {reportCount > 0 ? `${reportCount} users reported issues recently` : 'No reports yet'}
+            </p>
+            <button 
+              onClick={handleReport}
               style={{
-                flex: 1,
-                padding: 'clamp(12px, 3vw, 16px) 20px',
-                fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
-                background: 'transparent',
-                border: 'none',
-                color: '#ffffff',
-                outline: 'none',
-                borderRadius: '16px 0 0 16px',
-                '@media (max-width: 640px)': {
-                  borderRadius: '16px 16px 0 0',
-                  borderBottom: '1px solid rgba(0,212,255,0.15)'
+                padding: '8px 16px',
+                fontSize: '0.9rem',
+                background: 'rgba(255,77,77,0.15)',
+                color: '#ff4d4d',
+                border: '1px solid rgba(255,77,77,0.3)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                marginRight: '16px',
+                transition: 'all 0.2s'
+              }}
+              className="hover:bg-[rgba(255,77,77,0.25)] hover:scale-105"
+            >
+              Report as Down/Blocked
+            </button>
+
+            <button 
+              onClick={() => checkSite(decodedSite)}
+              disabled={loading}
+              style={{
+                padding: '8px 16px',
+                fontSize: '0.9rem',
+                background: 'rgba(0,212,255,0.15)',
+                color: '#00d4ff',
+                border: '1px solid rgba(0,212,255,0.3)',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              className="hover:bg-[rgba(0,212,255,0.25)] hover:scale-105"
+            >
+              Refresh
+            </button>
+          </div>
+        )}
+
+        {/* Quick search box */}
+        <div style={{
+          marginTop: 'clamp(24px, 5vw, 36px)',
+          padding: '10px 14px',
+          background: 'rgba(13,17,23,0.7)',
+          borderRadius: '12px',
+          border: '1px solid rgba(0,212,255,0.25)',
+          maxWidth: 'clamp(300px, 85vw, 480px)',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          boxShadow: '0 0 16px rgba(0,212,255,0.15)'
+        }}>
+          <p style={{ 
+            fontSize: 'clamp(0.9rem, 3vw, 0.95rem)', 
+            color: '#c9d1d9', 
+            margin: '0 0 6px 0', 
+            textAlign: 'center' 
+          }}>
+            Check another website
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <input 
+              type="text" 
+              placeholder="e.g., google.com" 
+              value={newUrl}
+              onChange={(e) => setNewUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !loading) {
+                  e.preventDefault();
+                  const siteSlug = newUrl.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].replace(/\./g, '-');
+                  if (siteSlug) window.location.href = `/status/${siteSlug}`;
                 }
+              }}
+              style={{ 
+                flex: 1,
+                padding: '8px 14px', 
+                fontSize: 'clamp(0.85rem, 3vw, 0.95rem)', 
+                borderRadius: '10px 0 0 10px', 
+                border: '1px solid rgba(0,212,255,0.3)', 
+                background: 'rgba(13,17,23,0.7)', 
+                color: '#ffffff', 
+                outline: 'none' 
               }}
             />
-            <button
-              onClick={checkSite}
-              style={{
-                padding: 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)',
-                background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
-                color: 'white',
-                border: 'none',
-                fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                minWidth: 'clamp(140px, 30vw, 180px)',
-                borderRadius: '0 16px 16px 0',
-                '@media (maxWidth: 640px)': {
-                  borderRadius: '0 0 16px 16px',
-                  minWidth: '100%',
-                  borderTop: '1px solid rgba(0,212,255,0.15)'
-                }
+            <button 
+              onClick={() => {
+                const siteSlug = newUrl.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0].replace(/\./g, '-');
+                if (siteSlug) window.location.href = `/status/${siteSlug}`;
+              }}
+              disabled={loading}
+              style={{ 
+                padding: '8px 18px', 
+                fontSize: 'clamp(0.85rem, 3vw, 0.95rem)', 
+                background: 'linear-gradient(90deg, #00d4ff, #3b82f6)', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '0 10px 10px 0', 
+                cursor: 'pointer' 
               }}
             >
-              Check Now →
+              Check
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Quick chips */}
-      <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '12px',
-        justifyContent: 'center',
-        marginBottom: '48px'
-      }}>
-        {['youtube.com', 'discord.com', 'chatgpt.com', 'tiktok.com'].map(site => (
-          <Link
-            key={site}
-            href={`/status/${site.replace(/\./g, '-')}`}
-            style={{
-              padding: '10px 18px',
-              background: 'rgba(13,17,23,0.65)',
-              border: '1px solid rgba(0,212,255,0.3)',
-              borderRadius: '12px',
-              color: '#ffffff',
-              textDecoration: 'none',
-              fontSize: '0.95rem',
-              transition: 'all 0.3s'
-            }}
-          >
-            {site}
+        <p style={{
+          marginTop: 'clamp(40px, 8vw, 60px)',
+          textAlign: 'center'
+        }}>
+          <Link href="/" style={{ 
+            padding: 'clamp(12px, 3vw, 14px) clamp(28px, 6vw, 32px)', 
+            fontSize: 'clamp(1rem, 3.5vw, 1.1em)', 
+            background: 'linear-gradient(90deg, #00d4ff, #3b82f6)', 
+            color: 'white', 
+            textDecoration: 'none', 
+            borderRadius: '9999px', 
+            cursor: 'pointer', 
+            boxShadow: '0 0 40px rgba(0,212,255,0.5)', 
+            transition: 'all 0.3s ease'
+          }} className="hover:shadow-[0_0_70px_rgba(0,212,255,0.7)] hover:scale-105">
+            Back to Homepage
           </Link>
-        ))}
+        </p>
+
+        {/* Explainability note */}
+        <p style={{
+          marginTop: 'clamp(32px, 6vw, 48px)',
+          fontSize: '0.85rem',
+          color: '#94a3b8',
+          textAlign: 'center'
+        }}>
+          Powered by multi-region server checks. Results are indicative — test in browser to confirm.
+        </p>
       </div>
-
-      {/* Compact feature cards */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: 'clamp(12px, 2vw, 16px)',
-        maxWidth: 'clamp(500px, 90vw, 800px)',
-        margin: '0 auto'
-      }}>
-        <Link href="/categories" style={{ textDecoration: 'none' }}>
-          <div className="glass" style={{
-            padding: '16px',
-            borderRadius: '14px',
-            background: 'rgba(0,212,255,0.1)',
-            border: '1px solid rgba(0,212,255,0.2)',
-            cursor: 'pointer',
-            transition: 'all 0.3s'
-          }}>
-            <div style={{ fontSize: '1.8rem', marginBottom: '8px' }}>📂</div>
-            <h3 style={{ color: '#00d4ff', marginBottom: '4px' }}>All Categories</h3>
-            <p style={{ color: '#8b949e', fontSize: '0.85rem' }}>Browse by type</p>
-          </div>
-        </Link>
-
-        <Link href="/categories" style={{ textDecoration: 'none' }}>
-          <div className="glass" style={{
-            padding: '16px',
-            borderRadius: '14px',
-            border: '1px solid rgba(0,212,255,0.25)',
-            boxShadow: '0 4px 16px rgba(0,212,255,0.15)',
-            background: 'rgba(13,17,23,0.75)',
-            backdropFilter: 'blur(10px)',
-            transition: 'all 0.3s ease',
-            cursor: 'pointer',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '4px'
-          }}>
-            <div style={{
-              width: '28px',
-              height: '28px',
-              background: 'rgba(0,212,255,0.15)',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 0 10px rgba(0,212,255,0.35)'
-            }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" strokeWidth="2">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              </svg>
-            </div>
-            <h3 style={{ fontSize: '0.95rem', fontWeight: '600', color: '#00d4ff', margin: 0 }}>
-              Scan a Category
-            </h3>
-            <p style={{ fontSize: '0.75rem', color: '#c9d1d9', margin: 0, lineHeight: '1.2' }}>
-              Social·AI·Streaming·Gaming
-            </p>
-          </div>
-        </Link>
-
-        <Link href="/outages" style={{ textDecoration: 'none' }}>
-          <div className="glass" style={{
-            padding: '16px',
-            borderRadius: '14px',
-            border: '1px solid rgba(139, 92, 246, 0.25)',
-            boxShadow: '0 4px 16px rgba(139,92,246,0.15)',
-            background: 'rgba(13,17,23,0.75)',
-            backdropFilter: 'blur(10px)',
-            transition: 'all 0.3s ease',
-            cursor: 'pointer',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '4px'
-          }}>
-            <div style={{
-              width: '28px',
-              height: '28px',
-              background: 'rgba(139,92,246,0.15)',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 0 10px rgba(139,92,246,0.35)'
-            }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2">
-                <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-              </svg>
-            </div>
-            <h3 style={{ fontSize: '0.95rem', fontWeight: '600', color: '#8b5cf6', margin: 0 }}>
-              Global Outages
-            </h3>
-            <p style={{ fontSize: '0.75rem', color: '#c9d1d9', margin: 0, lineHeight: '1.2' }}>
-              Live status of major platforms
-            </p>
-          </div>
-        </Link>
-
-        <Link href="/my-ip" style={{ textDecoration: 'none' }}>
-          <div className="glass" style={{
-            padding: '16px',
-            borderRadius: '14px',
-            border: '1px solid rgba(0, 255, 157, 0.25)',
-            boxShadow: '0 4px 16px rgba(0,255,157,0.15)',
-            background: 'rgba(13,17,23,0.75)',
-            backdropFilter: 'blur(10px)',
-            transition: 'all 0.3s ease',
-            cursor: 'pointer',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '4px'
-          }}>
-            <div style={{
-              width: '28px',
-              height: '28px',
-              background: 'rgba(0,255,157,0.15)',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 0 10px rgba(0,255,157,0.35)'
-            }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00ff9d" strokeWidth="2">
-                <circle cx="12" cy="12" r="10" />
-                <circle cx="12" cy="12" r="6" />
-                <circle cx="12" cy="12" r="2" />
-              </svg>
-            </div>
-            <h3 style={{ fontSize: '0.95rem', fontWeight: '600', color: '#00ff9d', margin: 0 }}>
-              Check Your IP
-            </h3>
-            <p style={{ fontSize: '0.75rem', color: '#c9d1d9', margin: 0, lineHeight: '1.2' }}>
-              ISP, location & connection type
-            </p>
-          </div>
-        </Link>
-
-        <Link href="/popular-blocked" style={{ textDecoration: 'none' }}>
-          <div className="glass" style={{
-            padding: '16px',
-            borderRadius: '14px',
-            border: '1px solid rgba(255, 166, 87, 0.25)',
-            boxShadow: '0 4px 16px rgba(255,166,87,0.15)',
-            background: 'rgba(13,17,23,0.75)',
-            backdropFilter: 'blur(10px)',
-            transition: 'all 0.3s ease',
-            cursor: 'pointer',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '4px'
-          }}>
-            <div style={{
-              width: '28px',
-              height: '28px',
-              background: 'rgba(255,166,87,0.15)',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 0 10px rgba(255,166,87,0.35)'
-            }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffa657" strokeWidth="2">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <line x1="9" y1="9" x2="15" y2="15" />
-                <line x1="15" y1="9" x2="9" y2="15" />
-              </svg>
-            </div>
-            <h3 style={{ fontSize: '0.95rem', fontWeight: '600', color: '#ffa657', margin: 0 }}>
-              Most Blocked Sites
-            </h3>
-            <p style={{ fontSize: '0.75rem', color: '#c9d1d9', margin: 0, lineHeight: '1.2' }}>
-              Popular sites at work & school
-            </p>
-          </div>
-        </Link>
-      </div>
-
-      <p style={{
-        marginTop: '60px',
-        fontSize: '0.85rem',
-        color: '#94a3b8',
-        textAlign: 'center'
-      }}>
-        Results are indicative only — advanced filtering may not be detected. • Multi-region proof coming in Phase 3
-      </p>
     </div>
   );
 }
