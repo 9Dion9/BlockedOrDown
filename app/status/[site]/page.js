@@ -48,50 +48,69 @@ export default function Home() {
           Enter any website to get multi-signal status proof in seconds.
         </p>
 
-        {/* Responsive search bar */}
+        {/* Responsive search bar - fixed on mobile */}
         <div style={{
-          display: 'flex',
-          flexDirection: 'row',
-          background: 'rgba(13,17,23,0.75)',
-          borderRadius: '16px',
-          border: '1px solid rgba(0,212,255,0.35)',
-          boxShadow: '0 0 40px rgba(0,212,255,0.25)',
-          overflow: 'hidden'
+          width: '100%',
+          maxWidth: 'clamp(480px, 90vw, 720px)',
+          margin: '0 auto 32px auto'
         }}>
-          <input
-            type="text"
-            placeholder="e.g., youtube.com or netflix.com"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            onKeyDown={handleKeyDown}
-            style={{
-              flex: 1,
-              padding: 'clamp(12px, 3vw, 16px) 20px',
-              fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
-              background: 'transparent',
-              border: 'none',
-              color: '#ffffff',
-              outline: 'none',
-              borderRadius: '16px 0 0 16px'
-            }}
-          />
-          <button
-            onClick={checkSite}
-            style={{
-              padding: 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)',
-              background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
-              color: 'white',
-              border: 'none',
-              fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s',
-              minWidth: 'clamp(140px, 30vw, 180px)',
-              borderRadius: '0 16px 16px 0'
-            }}
-          >
-            Check Now →
-          </button>
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row',
+            background: 'rgba(13,17,23,0.75)',
+            borderRadius: '16px',
+            border: '1px solid rgba(0,212,255,0.35)',
+            boxShadow: '0 0 40px rgba(0,212,255,0.25)',
+            overflow: 'hidden',
+            '@media (max-width: 640px)': {
+              flexDirection: 'column',
+              borderRadius: '16px'
+            }
+          }}>
+            <input
+              type="text"
+              placeholder="e.g., youtube.com or netflix.com"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              onKeyDown={handleKeyDown}
+              style={{
+                flex: 1,
+                padding: 'clamp(12px, 3vw, 16px) 20px',
+                fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
+                background: 'transparent',
+                border: 'none',
+                color: '#ffffff',
+                outline: 'none',
+                borderRadius: '16px 0 0 16px',
+                '@media (max-width: 640px)': {
+                  borderRadius: '16px 16px 0 0',
+                  borderBottom: '1px solid rgba(0,212,255,0.15)'
+                }
+              }}
+            />
+            <button
+              onClick={checkSite}
+              style={{
+                padding: 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)',
+                background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
+                color: 'white',
+                border: 'none',
+                fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                minWidth: 'clamp(140px, 30vw, 180px)',
+                borderRadius: '0 16px 16px 0',
+                '@media (maxWidth: 640px)': {
+                  borderRadius: '0 0 16px 16px',
+                  minWidth: '100%',
+                  borderTop: '1px solid rgba(0,212,255,0.15)'
+                }
+              }}
+            >
+              Check Now →
+            </button>
+          </div>
         </div>
       </div>
 
@@ -131,6 +150,21 @@ export default function Home() {
         maxWidth: 'clamp(500px, 90vw, 800px)',
         margin: '0 auto'
       }}>
+        <Link href="/categories" style={{ textDecoration: 'none' }}>
+          <div className="glass" style={{
+            padding: '16px',
+            borderRadius: '14px',
+            background: 'rgba(0,212,255,0.1)',
+            border: '1px solid rgba(0,212,255,0.2)',
+            cursor: 'pointer',
+            transition: 'all 0.3s'
+          }}>
+            <div style={{ fontSize: '1.8rem', marginBottom: '8px' }}>📂</div>
+            <h3 style={{ color: '#00d4ff', marginBottom: '4px' }}>All Categories</h3>
+            <p style={{ color: '#8b949e', fontSize: '0.85rem' }}>Browse by type</p>
+          </div>
+        </Link>
+
         <Link href="/categories" style={{ textDecoration: 'none' }}>
           <div className="glass" style={{
             padding: '16px',
