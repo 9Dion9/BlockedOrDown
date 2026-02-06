@@ -41,22 +41,67 @@ export default function Home() {
         <h2 className="text-5xl font-bold text-cyan-400 mb-4">Is this site down or blocked?</h2>
         <p className="text-gray-400 mb-8">Enter any website to get multi-signal status proof in seconds.</p>
 
-        <div className="w-full max-w-2xl flex mb-8">
-          <input
-            type="text"
-            placeholder="e.g., youtube.com or netflix.com"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex-grow bg-gray-800 border border-gray-700 rounded-l-full px-6 py-3 text-gray-300 focus:outline-none focus:border-cyan-400"
-          />
-          <button
-            onClick={checkSite}
-            className="bg-gradient-to-r from-cyan-400 to-violet-500 text-white font-semibold rounded-r-full px-8 py-3 hover:from-cyan-300 hover:to-violet-400 transition"
-          >
-            Check Now →
-          </button>
-        </div>
+{/* Fully responsive search bar */}
+<div style={{
+  width: '100%',
+  maxWidth: 'clamp(500px, 80vw, 700px)',
+  margin: '0 auto 32px auto'
+}}>
+  <div style={{
+    display: 'flex',
+    flexDirection: 'row',
+    background: 'rgba(13,17,23,0.75)',
+    borderRadius: '16px',
+    border: '1px solid rgba(0,212,255,0.35)',
+    boxShadow: '0 0 40px rgba(0,212,255,0.25)',
+    overflow: 'hidden',
+    '@media (max-width: 640px)': {
+      flexDirection: 'column'
+    }
+  }}>
+    <input
+      type="text"
+      placeholder="e.g., youtube.com or netflix.com"
+      value={url}
+      onChange={(e) => setUrl(e.target.value)}
+      onKeyDown={(e) => e.key === 'Enter' && checkSite()}
+      style={{
+        flex: 1,
+        padding: 'clamp(12px, 3vw, 16px) 20px',
+        fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
+        background: 'transparent',
+        border: 'none',
+        color: '#ffffff',
+        outline: 'none',
+        borderRadius: '16px 0 0 16px',
+        '@media (max-width: 640px)': {
+          borderRadius: '16px 16px 0 0'
+        }
+      }}
+    />
+    <button
+      onClick={checkSite}
+      style={{
+        padding: 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)',
+        background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
+        color: 'white',
+        border: 'none',
+        fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.3s',
+        minWidth: 'clamp(120px, 25vw, 160px)',
+        borderRadius: '0 16px 16px 0',
+        '@media (max-width: 640px)': {
+          borderRadius: '0 0 16px 16px',
+          borderTop: '1px solid rgba(0,212,255,0.15)'
+        }
+      }}
+    >
+      Check Now →
+    </button>
+  </div>
+</div>
 
         <div className="flex space-x-2 mb-16">
           <Link href="/status/youtube-com" className="bg-gray-800 border border-gray-700 rounded-full px-4 py-2 text-gray-300 hover:border-cyan-400">youtube.com</Link>
