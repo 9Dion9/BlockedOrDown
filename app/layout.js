@@ -114,7 +114,7 @@ export default function RootLayout({ children }) {
       transition: 'all 0.3s ease', 
       boxShadow: '0 0 10px rgba(0,212,255,0.1)' 
     }} className="hover:bg-[rgba(0,212,255,0.18)] hover:text-[#00d4ff] hover:shadow-[0_0_20px_rgba(0,212,255,0.3)] hover:scale-105">
-      Whats My IP Adress?
+      My IP Adress
     </Link>
   </nav>
 </header>
