@@ -52,7 +52,8 @@ export default function Home() {
         <div style={{
           width: '100%',
           maxWidth: 'clamp(480px, 90vw, 720px)',
-          margin: '0 auto 32px auto'
+          borderRadius: '9999px',
+          margin: '0 auto',
         }}>
           <div style={{
             display: 'flex',
@@ -114,33 +115,36 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Quick chips */}
-      <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '12px',
-        justifyContent: 'center',
-        marginBottom: '48px'
-      }}>
-        {['youtube.com', 'discord.com', 'chatgpt.com', 'tiktok.com'].map(site => (
-          <Link
-            key={site}
-            href={`/status/${site.replace(/\./g, '-')}`}
-            style={{
-              padding: '10px 18px',
-              background: 'rgba(13,17,23,0.65)',
-              border: '1px solid rgba(0,212,255,0.3)',
-              borderRadius: '12px',
-              color: '#ffffff',
-              textDecoration: 'none',
-              fontSize: '0.95rem',
-              transition: 'all 0.3s'
-            }}
-          >
-            {site}
-          </Link>
-        ))}
-      </div>
+{/* Pill-shaped quick chips */}
+<div style={{
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: '12px',
+  justifyContent: 'center',
+  marginBottom: '48px'
+}}>
+  {['youtube.com', 'discord.com', 'chatgpt.com', 'tiktok.com'].map(site => (
+    <Link
+      key={site}
+      href={`/status/${site.replace(/\./g, '-')}`}
+      style={{
+        padding: '10px 20px', // slightly wider for pill shape
+        background: 'rgba(13,17,23,0.65)',
+        border: '1px solid rgba(0,212,255,0.3)',
+        borderRadius: '9999px', // full pill shape
+        color: '#ffffff',
+        textDecoration: 'none',
+        fontSize: '0.95rem',
+        transition: 'all 0.3s ease',
+        boxShadow: '0 2px 8px rgba(0,212,255,0.1)',
+        whiteSpace: 'nowrap'
+      }}
+      className="hover:bg-[rgba(0,212,255,0.12)] hover:border-[rgba(0,212,255,0.5)] hover:shadow-[0_0_16px_rgba(0,212,255,0.3)] hover:scale-105"
+    >
+      {site}
+    </Link>
+  ))}
+</div>
 
      {/* Compact feature cards with minimal hover effect */}
 <div style={{

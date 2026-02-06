@@ -114,7 +114,7 @@ export default function RootLayout({ children }) {
       transition: 'all 0.3s ease', 
       boxShadow: '0 0 10px rgba(0,212,255,0.1)' 
     }} className="hover:bg-[rgba(0,212,255,0.18)] hover:text-[#00d4ff] hover:shadow-[0_0_20px_rgba(0,212,255,0.3)] hover:scale-105">
-      My IP
+      Whats My IP Adress?
     </Link>
   </nav>
 </header>
@@ -125,9 +125,82 @@ export default function RootLayout({ children }) {
         </main>
 
         {/* Footer */}
-        <footer className="glass" style={{ marginTop: 'auto', padding: '20px', textAlign: 'center', fontSize: '0.85rem', color: 'var(--text-muted)'  }}>
-          Results are indicative only — advanced filtering may not be detected. • Multi-region proof coming in Phase 3
-        </footer>
+        <footer style={{
+  marginTop: 'auto',
+  marginBottom: '5px', // your requested bottom margin
+  padding: 'clamp(10px, 2vw, 14px) clamp(16px, 3vw, 24px)', // tighter left/right
+  textAlign: 'center',
+  background: 'rgba(13,17,23,0.35)',
+  backdropFilter: 'blur(8px)',
+  borderRadius: '9999px',
+  border: '1px solid rgba(0,212,255,0.15)',
+  boxShadow: '0 8px 32px rgba(0,212,255,0.15)',
+  width: 'fit-content', // shrinks to content width
+  minWidth: 'clamp(300px, 80vw, 400px)',
+  maxWidth: 'clamp(600px, 90vw, 900px)',
+  marginLeft: 'auto',
+  marginRight: 'auto'
+}}>
+  <div style={{
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    gap: 'clamp(10px, 2vw, 16px)',
+    fontSize: 'clamp(0.8rem, 2vw, 0.85rem)',
+    color: '#00d4ff'
+  }}>
+    <Link href="/about" style={{ 
+      color: 'inherit', 
+      textDecoration: 'none',
+      transition: 'all 0.3s ease'
+    }} className="hover:text-cyan-300 hover:underline">
+      About
+    </Link>
+    <Link href="/privacy" style={{ 
+      color: 'inherit', 
+      textDecoration: 'none',
+      transition: 'all 0.3s ease'
+    }} className="hover:text-cyan-300 hover:underline">
+      Privacy Policy
+    </Link>
+    <Link href="/terms" style={{ 
+      color: 'inherit', 
+      textDecoration: 'none',
+      transition: 'all 0.3s ease'
+    }} className="hover:text-cyan-300 hover:underline">
+      Terms of Use
+    </Link>
+    <Link href="/methodology" style={{ 
+      color: 'inherit', 
+      textDecoration: 'none',
+      transition: 'all 0.3s ease'
+    }} className="hover:text-cyan-300 hover:underline">
+      How It Works
+    </Link>
+    <Link href="/contact" style={{ 
+      color: 'inherit', 
+      textDecoration: 'none',
+      transition: 'all 0.3s ease'
+    }} className="hover:text-cyan-300 hover:underline">
+      Contact
+    </Link>
+    <Link href="/impressum" style={{ 
+      color: 'inherit', 
+      textDecoration: 'none',
+      transition: 'all 0.3s ease'
+    }} className="hover:text-cyan-300 hover:underline">
+      Impressum
+    </Link>
+    <Link href="/datenschutz" style={{ 
+      color: 'inherit', 
+      textDecoration: 'none',
+      transition: 'all 0.3s ease'
+    }} className="hover:text-cyan-300 hover:underline">
+      Datenschutzerklärung
+    </Link>
+  </div>
+
+</footer>
       </body>
     </html>
   );
