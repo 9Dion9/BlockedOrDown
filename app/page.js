@@ -55,48 +55,64 @@ export default function Home() {
         </p>
 
         {/* Compacter search bar */}
-        <div style={{
-          display: 'flex',
-          maxWidth: 'clamp(500px, 80vw, 700px)',
-          margin: '0 auto 32px auto',
-          background: 'rgba(13,17,23,0.75)',
-          borderRadius: '16px',
-          border: '1px solid rgba(0,212,255,0.35)',
-          boxShadow: '0 0 40px rgba(0,212,255,0.25)',
-          overflow: 'hidden'
-        }}>
-          <input
-            type="text"
-            placeholder="e.g., youtube.com or netflix.com"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            onKeyDown={handleKeyDown}
-            style={{
-              flex: 1,
-              padding: 'clamp(14px, 3vw, 18px) 20px',
-              fontSize: 'clamp(1rem, 3vw, 1.2rem)',
-              background: 'transparent',
-              border: 'none',
-              color: '#ffffff',
-              outline: 'none'
-            }}
-          />
-          <button
-            onClick={checkSite}
-            style={{
-              padding: 'clamp(14px, 3vw, 18px) 32px',
-              background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
-              color: 'white',
-              border: 'none',
-              fontSize: 'clamp(1rem, 3vw, 1.2rem)',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.3s'
-            }}
-          >
-            Check Now →
-          </button>
-        </div>
+{/* Responsive search bar */}
+<div style={{
+  width: '100%',
+  maxWidth: 'clamp(500px, 80vw, 700px)',
+  margin: '0 auto 32px auto'
+}}>
+  <div style={{
+    display: 'flex',
+    flexDirection: 'row',
+    background: 'rgba(13,17,23,0.75)',
+    borderRadius: '16px',
+    border: '1px solid rgba(0,212,255,0.35)',
+    boxShadow: '0 0 40px rgba(0,212,255,0.25)',
+    overflow: 'hidden',
+    '@media (max-width: 640px)': {
+      flexDirection: 'column'
+    }
+  }}>
+    <input
+      type="text"
+      placeholder="e.g., youtube.com or netflix.com"
+      value={url}
+      onChange={(e) => setUrl(e.target.value)}
+      onKeyDown={handleKeyDown}
+      style={{
+        flex: 1,
+        padding: 'clamp(14px, 3vw, 18px) 20px',
+        fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+        background: 'transparent',
+        border: 'none',
+        color: '#ffffff',
+        outline: 'none',
+        borderRadius: '16px 0 0 16px'
+      }}
+    />
+    <button
+      onClick={checkSite}
+      style={{
+        padding: 'clamp(14px, 3vw, 18px) clamp(24px, 5vw, 32px)',
+        background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
+        color: 'white',
+        border: 'none',
+        fontSize: 'clamp(1rem, 3vw, 1.2rem)',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.3s',
+        borderRadius: '0 16px 16px 0',
+        minWidth: 'clamp(120px, 25vw, 160px)',
+        '@media (max-width: 640px)': {
+          borderRadius: '0 0 16px 16px',
+          borderTop: '1px solid rgba(0,212,255,0.15)'
+        }
+      }}
+    >
+      Check Now →
+    </button>
+  </div>
+</div>
 
         {/* Quick chips */}
         <div style={{

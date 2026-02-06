@@ -47,7 +47,7 @@ export default function RootLayout({ children }) {
       textDecoration: 'none', 
       textShadow: '0 0 20px rgba(0,212,255,0.6)' 
     }}>
-      BlockedOrDown.
+      BlockedOrDown
     </Link>
   </div>
 
