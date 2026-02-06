@@ -48,71 +48,77 @@ export default function Home() {
           Enter any website to get multi-signal status proof in seconds.
         </p>
 
-        {/* Responsive search bar - fixed on mobile */}
-        <div style={{
-          width: '100%',
-          maxWidth: 'clamp(480px, 90vw, 720px)',
-          borderRadius: '9999px',
-          margin: '0 auto',
-        }}>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'row',
-            background: 'rgba(13,17,23,0.75)',
-            borderRadius: '16px',
-            border: '1px solid rgba(0,212,255,0.35)',
-            boxShadow: '0 0 40px rgba(0,212,255,0.25)',
-            overflow: 'hidden',
-            '@media (max-width: 640px)': {
-              flexDirection: 'column',
-              borderRadius: '16px'
-            }
-          }}>
-            <input
-              type="text"
-              placeholder="e.g., youtube.com or netflix.com"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              onKeyDown={handleKeyDown}
-              style={{
-                flex: 1,
-                padding: 'clamp(12px, 3vw, 16px) 20px',
-                fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
-                background: 'transparent',
-                border: 'none',
-                color: '#ffffff',
-                outline: 'none',
-                borderRadius: '16px 0 0 16px',
-                '@media (max-width: 640px)': {
-                  borderRadius: '16px 16px 0 0',
-                  borderBottom: '1px solid rgba(0,212,255,0.15)'
-                }
-              }}
-            />
-            <button
-              onClick={checkSite}
-              style={{
-                padding: 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)',
-                background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
-                color: 'white',
-                border: 'none',
-                fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                minWidth: 'clamp(140px, 30vw, 180px)',
-                borderRadius: '0 16px 16px 0',
-                '@media (max-width: 640px)': {
-                  borderRadius: '0 0 16px 16px',
-                  minWidth: '100%',
-                  borderTop: '1px solid rgba(0,212,255,0.15)'
-                }
-              }}
-            >
-              Check Now →
-            </button>
-          </div>
-        </div>
+        {/* Responsive search bar - mobile stacks vertically */}
+<div style={{
+  width: '100%',
+  maxWidth: 'clamp(480px, 90vw, 720px)',
+  borderRadius: '9999px',
+  margin: '0 auto 32px auto',
+  background: 'rgba(13,17,23,0.75)',
+  border: '1px solid rgba(0,212,255,0.35)',
+  boxShadow: '0 0 40px rgba(0,212,255,0.25)',
+  overflow: 'hidden'
+}}>
+  <style jsx>{`
+    .search-container {
+      display: flex;
+      flex-direction: row;
+    }
+    @media (max-width: 640px) {
+      .search-container {
+        flex-direction: column;
+      }
+      .search-input {
+        border-radius: 16px 16px 0 0 !important;
+        border-bottom: 1px solid rgba(0,212,255,0.15) !important;
+      }
+      .search-button {
+        border-radius: 0 0 16px 16px !important;
+        min-width: 100% !important;
+        border-top: 1px solid rgba(0,212,255,0.15) !important;
+      }
+    }
+  `}</style>
+
+  <div className="search-container">
+    <input
+      type="text"
+      placeholder="e.g., youtube.com or netflix.com"
+      value={url}
+      onChange={(e) => setUrl(e.target.value)}
+      onKeyDown={handleKeyDown}
+      className="search-input"
+      style={{
+        flex: 1,
+        padding: 'clamp(12px, 3vw, 16px) 20px',
+        fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
+        background: 'transparent',
+        border: 'none',
+        color: '#ffffff',
+        outline: 'none',
+        borderRadius: '16px 0 0 16px'
+      }}
+    />
+    <button
+      onClick={checkSite}
+      className="search-button"
+      style={{
+        padding: 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)',
+        background: 'linear-gradient(90deg, #00d4ff, #3b82f6)',
+        color: 'white',
+        border: 'none',
+        fontSize: 'clamp(0.95rem, 3vw, 1.1rem)',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.3s',
+        minWidth: 'clamp(140px, 30vw, 180px)',
+        borderRadius: '0 16px 16px 0'
+      }}
+    >
+      Check Now
+    </button>
+  </div>
+</div>
       </div>
 
 {/* Pill-shaped quick chips */}

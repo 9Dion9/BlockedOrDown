@@ -3,18 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-export async function getStaticPaths() {
- 
 
-  const paths = popularSites.map(site => ({
-    params: { site }
-  }));
-
-  return {
-    paths,
-    fallback: 'blocking' // non-listed sites work dynamically
-  };
-}
 export default function SiteStatusPage() {
   const params = useParams();
   const { site } = params;
@@ -59,10 +48,8 @@ export default function SiteStatusPage() {
     const steps = useDeepCheck ? [
       { text: 'Resolving DNS...', pct: 20 },
       { text: 'Checking TLS handshake...', pct: 40 },
-      { text: 'Probing US region...', pct: 55 },
-      { text: 'Probing EU region...', pct: 70 },
-      { text: 'Probing Asia region...', pct: 85 },
-      { text: 'Validating content...', pct: 95 },
+      { text: 'Probing global edge...', pct: 70 },
+      { text: 'Validating content...', pct: 90 },
       { text: 'Finalizing result...', pct: 100 }
     ] : [
       { text: 'Quick server check...', pct: 50 },
@@ -79,57 +66,86 @@ export default function SiteStatusPage() {
     }, 400);
 
     try {
-      if (useDeepCheck) {
-        // Real multi-region simulation (later real proxies)
-        const regions = ['US-East', 'EU-West', 'Asia-Southeast', 'SA-East', 'AU-Sydney'];
-        const deepResults = await Promise.all(regions.map(async (region) => {
-          // Simulate region-specific fetch (replace with real proxy later)
-          await new Promise(r => setTimeout(r, 800));
-          // 90% success rate for demo — real version would use different endpoints
-          return Math.random() > 0.1;
-        }));
+if (useDeepCheck) {
+  setProgress(0);
+  setProgressText('Starting deep check...');
 
-        const successCount = deepResults.filter(r => r).length;
-        const successRate = successCount / regions.length;
-        let finalMessage = '';
-        let confidence = Math.round(successRate * 100);
-        let statusColor = '#94a3b8';
+  let reachable = false;
+  let errorMsg = null;
+  let region = 'unknown';
 
-        if (successRate >= 0.75) {
-          finalMessage = '✅ Reachable everywhere — not down or blocked.';
-          statusColor = '#00ff9d';
-        } else if (successRate >= 0.4) {
-          finalMessage = '⚠️ Mixed results — possibly blocked in some regions.';
-          statusColor = '#ffa657';
-        } else {
-          finalMessage = '❌ Unreachable — likely global outage or down for everyone.';
-          statusColor = '#ff4d4d';
-        }
+  try {
+    const workerUrl = `https://broken-queen-7e63.dionmain.workers.dev/?url=${encodeURIComponent(cleanInput)}`;
 
-        setResult(`${finalMessage}\nConfidence: ${confidence}% (based on ${successCount}/${regions.length} regions)`);
-      } else {
-        // Quick mode
-        const serverResponse = await fetch(`/api/check?url=${encodeURIComponent(cleanInput)}`);
-        const serverData = await serverResponse.json();
+    let res = await fetch(workerUrl, {
+      headers: { 'Cache-Control': 'no-cache' },
+      signal: AbortSignal.timeout(30000)
+    });
 
-        let finalMessage = '';
-        let confidence = 'High';
-        let statusColor = '#94a3b8';
+    if (res.status === 429) {
+      setProgressText('Rate limit hit — retrying...');
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      res = await fetch(workerUrl, {
+        headers: { 'Cache-Control': 'no-cache' },
+        signal: AbortSignal.timeout(30000)
+      });
+    }
 
-        if (serverData.serverStatus === 'reachable') {
-          finalMessage = '✅ Reachable everywhere — not down or blocked.';
-          statusColor = '#00ff9d';
-        } else {
-          finalMessage = '❌ Unreachable — likely global outage or down for everyone.';
-          statusColor = '#ff4d4d';
-          confidence = 'Medium';
-        }
+    if (!res.ok) throw new Error(`Worker returned ${res.status}`);
 
-        setResult(`${finalMessage}\nConfidence: ${confidence}`);
-      }
+    const data = await res.json();
+    reachable = data.reachable;
+    errorMsg = data.error || null;
+    region = data.region || 'unknown';
 
+    setProgress(100);
+    setProgressText('Complete');
+  } catch (err) {
+    console.error('Deep check failed:', err);
+    reachable = false;
+    errorMsg = err.name === 'TimeoutError' ? 'Timeout (site slow or blocked)' : err.message;
+    setProgress(100);
+    setProgressText('Error');
+  }
+
+  // Final result - premium, strict, with clear status emojis
+  let finalMessage = '';
+  let statusColor = '#94a3b8'; // default gray
+  let confidence = reachable ? 100 : 0;
+
+  if (reachable) {
+    finalMessage = `✅ The site is reachable from global edge infrastructure${region !== 'unknown' ? ` (${region})` : ''}.\nNo widespread outage or block detected.`;
+    statusColor = '#00ff9d'; // green
+  } else if (errorMsg && errorMsg.includes('Timeout')) {
+    finalMessage = `⚠️ Mixed signal — site responded slowly or timed out from edge (${region !== 'unknown' ? region : 'unknown'}).\nPossible regional block or performance issue.\n(${errorMsg})`;
+    statusColor = '#ffa657'; // orange warning
+    confidence = 50;
+  } else {
+    finalMessage = `❌ The site is unreachable from global edge infrastructure${region !== 'unknown' ? ` (${region})` : ''}.\nLikely global outage, regional restriction, or severe block.\n(${errorMsg || 'No response received'})`;
+    statusColor = '#ff4d4d'; // red
+  }
+
+  setResult(finalMessage + `\nConfidence: ${confidence}%`);
+} else {
+  // Quick mode
+  const serverResponse = await fetch(`/api/check?url=${encodeURIComponent(cleanInput)}`);
+  const serverData = await serverResponse.json();
+
+  let finalMessage = '';
+  let confidence = 'High';
+
+  if (serverData.serverStatus === 'reachable') {
+    finalMessage = '✅ The site is reachable — not down or blocked.';
+  } else {
+    finalMessage = '❌ The site is unreachable — likely global outage or down for everyone.';
+    confidence = 'Medium';
+  }
+
+  setResult(`${finalMessage}\nConfidence: ${confidence}`);
+}
       setLastChecked(new Date());
     } catch (err) {
+      console.error('Check error:', err);
       setResult('❌ Error checking status. Try again.');
     } finally {
       const elapsed = Date.now() - startTime;
