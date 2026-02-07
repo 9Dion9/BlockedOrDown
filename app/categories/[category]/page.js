@@ -7,6 +7,11 @@ const categoryData = {
     "title": "Social Media Sites",
     "sites": [
       {
+        "name": "X/Twitter",
+        "url": "x.com"
+      },
+      
+      {
         "name": "YouTube",
         "url": "youtube.com"
       },

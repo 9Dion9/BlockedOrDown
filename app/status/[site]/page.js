@@ -3,7 +3,56 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import Script from 'next/script';
 
+ const popularSites = [
+    // Social & Messaging
+    'youtube-com', 'facebook-com', 'instagram-com', 'twitter-com', 'tiktok-com',
+    'snapchat-com', 'discord-com', 'telegram-org', 'whatsapp-com', 'signal-org',
+    'reddit-com', 'pinterest-com', 'linkedin-com', 'wechat-com', 'vk-com',
+
+    // Streaming & Entertainment
+    'netflix-com', 'disneyplus-com', 'hulu-com', 'primevideo-com', 'hbomax-com',
+    'paramountplus-com', 'peacocktv-com', 'crunchyroll-com', 'plex-tv', 'vimeo-com',
+    'dailymotion-com', 'bilibili-com', 'soundcloud-com', 'spotify-com', 'apple-music-com',
+
+    // Gaming & Platforms
+    'roblox-com', 'minecraft-net', 'fortnite-com', 'epicgames-com', 'steam-com',
+    'playstation-com', 'xbox-com', 'nintendo-com', 'riotgames-com', 'blizzard-com',
+    'twitch-tv', 'kick-com', 'rumble-com', 'trovo-live', 'valorant-com',
+
+    // Search & AI Tools
+    'google-com', 'grok-com', 'chatgpt-com', 'openai-com', 'claude-ai',
+    'gemini-google', 'perplexity-ai', 'midjourney-com', 'deepseek-ai', 'anthropic-com',
+
+    // Productivity & Cloud
+    'notion-so', 'slack-com', 'teams-microsoft', 'zoom-us', 'google-drive',
+    'dropbox-com', 'onedrive-com', 'mega-nz', 'canva-com', 'figma-com',
+    'grammarly-com', 'deepl-com', 'zoho-com', 'trello-com', 'asana-com',
+    'monday-com', 'airtable-com', 'clickup-com', 'evernote-com', 'box-com',
+
+    // Finance & Crypto
+    'paypal-com', 'stripe-com', 'binance-com', 'coinbase-com', 'kraken-com',
+    'revolut-com', 'wise-com', 'venmo-com', 'cashapp-com', 'robinhood-com',
+
+    // Shopping & E-commerce
+    'amazon-com', 'ebay-com', 'aliexpress-com', 'etsy-com', 'walmart-com',
+    'target-com', 'bestbuy-com', 'shein-com', 'temu-com', 'wish-com',
+
+    // News & Knowledge
+    'wikipedia-org', 'nytimes-com', 'cnn-com', 'bbc-co-uk', 'foxnews-com',
+    'theguardian-com', 'washingtonpost-com', 'bloomberg-com', 'reuters-com', 'forbes-com',
+
+    // Other High-Traffic
+    'github-com', 'stackoverflow-com', 'npmjs-com', 'pypi-org', 'deviantart-com',
+    'fandom-com', 'quora-com', 'imdb-com', 'booking-com', 'airbnb-com',
+    'uber-com', 'lyft-com', 'doordash-com', 'grubhub-com', 'postmates-com',
+    // → This is ~150 sites. Expand further below if you want 300–500
+    // Example extension:
+    'outlook-com', 'gmail-com', 'yahoo-com', 'protonmail-com', 'tutanota-com',
+    'discord-gg', 'twitch-tv', 'kickstarter-com', 'patreon-com', 'onlyfans-com',
+    // ... add more as needed
+  ];
 export default function SiteStatusPage() {
   const params = useParams();
   const { site } = params;
@@ -18,18 +67,68 @@ export default function SiteStatusPage() {
   const [lastChecked, setLastChecked] = useState(new Date());
   const [reportCount, setReportCount] = useState(0);
   const [useDeepCheck, setUseDeepCheck] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState(null);
+  const [scanCount, setScanCount] = useState(0);
+
+  const pollProbeResult = async (cleanInput) => {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const res = await fetch(`https://broken-queen-7e63.dionmain.workers.dev/probe-result?url=${encodeURIComponent(cleanInput)}`);
+    const data = await res.json();
+    if (data.result) {
+      return data.result;
+    }
+    await new Promise(r => setTimeout(r, 5000)); // wait 5s
+  }
+  return { reachable: false, error: 'Probe timeout' };
+};
 
   // Load reports
-  useEffect(() => {
-    const saved = localStorage.getItem(`reports_${site}`);
-    if (saved) setReportCount(parseInt(saved, 10));
-  }, [site]);
+const handleReport = async () => {
+  try {
+    const ipRes = await fetch('https://api.ipify.org?format=json');
+    if (!ipRes.ok) throw new Error('Failed to get IP');
+    const ipData = await ipRes.json();
+    const ip = ipData.ip;
 
-  const handleReport = () => {
-    const newCount = reportCount + 1;
-    setReportCount(newCount);
-    localStorage.setItem(`reports_${site}`, newCount.toString());
+    const res = await fetch('https://broken-queen-7e63.dionmain.workers.dev/report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ siteSlug: site, ip })
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      setReportCount(prev => prev + 1);
+      alert('Report submitted successfully!');
+    } else {
+      alert(`Failed to submit report: ${data.error || 'Unknown error'}`);
+    }
+  } catch (err) {
+    console.error('Report failed:', err);
+    alert(`Error submitting report: ${err.message}`);
+  }
+};
+
+useEffect(() => {
+  const loadReports = async () => {
+    try {
+      const res = await fetch(`https://broken-queen-7e63.dionmain.workers.dev/report-count?siteSlug=${site}`);
+      if (!res.ok) throw new Error('Count fetch failed');
+      const data = await res.json();
+      setReportCount(data.count || 0);
+    } catch (err) {
+      console.error('Load reports failed:', err);
+      setReportCount(0);
+    }
   };
+  loadReports();
+}, [site]);
+useEffect(() => {
+  window.onTurnstileSuccess = function(token) {
+    console.log('Turnstile token received:', token);
+    setCaptchaToken(token);
+  };
+}, []);
 
   const checkSite = async (inputUrl = decodedSite) => {
     setLoading(true);
@@ -73,40 +172,75 @@ if (useDeepCheck) {
   let reachable = false;
   let errorMsg = null;
   let region = 'unknown';
+  let tlsValid = false;
+  let contentValid = false;
+  let country = 'unknown';
+  let city = 'unknown';
+  let asn = 'unknown';
+  let asOrganization = 'unknown';
+  let timezone = 'unknown';
 
   try {
     const workerUrl = `https://broken-queen-7e63.dionmain.workers.dev/?url=${encodeURIComponent(cleanInput)}`;
-    const res = await fetch(workerUrl, { cache: 'no-store' });
+    const res = await fetch(workerUrl, {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'CF-Turnstile-Token': captchaToken || ''
+      },
+      signal: AbortSignal.timeout(30000)
+    });
 
-    if (!res.ok) throw new Error(`Worker returned ${res.status}`);
+    if (res.status === 202) {
+      finalMessage = 'Probe queued — result processing. Refresh in a minute.';
+      reachable = true;
+      confidence = 80;
+    } else if (!res.ok) {
+      throw new Error(`Worker returned ${res.status}`);
+    } else {
+      const data = await res.json();
+      reachable = data.reachable;
+      errorMsg = data.error || null;
+      region = data.region || 'unknown';
+      tlsValid = data.tlsValid || false;
+      contentValid = data.contentValid || false;
+      country = data.country || 'unknown';
+      city = data.city || 'unknown';
+      asn = data.asn || 'unknown';
+      asOrganization = data.asOrganization || 'unknown';
+      timezone = data.timezone || 'unknown';
+    }
 
-    const data = await res.json();
-    reachable = data.reachable;
-    errorMsg = data.error || null;
-    region = data.region || 'unknown';
+    setProgress(100);
+    setProgressText('Complete');
   } catch (err) {
     console.error('Deep check failed:', err);
     reachable = false;
     errorMsg = err.message;
+    setProgress(100);
+    setProgressText('Error');
   }
 
   let finalMessage = '';
   let confidence = reachable ? 100 : 0;
 
   if (reachable) {
-    finalMessage = `✅ The site is reachable from global edge infrastructure${region !== 'unknown' ? ` (${region})` : ''}.\nNo widespread outage or block detected.`;
+    finalMessage = `✅ Reachable from ${region} edge in ${city}, ${country} (${asOrganization}, ASN ${asn}).\n` +
+                   `TLS secure: ${tlsValid ? 'Yes' : 'No'} | Content valid: ${contentValid ? 'Yes' : 'No'}\n` +
+                   `Timezone: ${timezone}\nNo widespread outage or block detected.`;
   } else if (errorMsg && errorMsg.includes('Timeout')) {
-    finalMessage = `⚠️ Mixed signal — site responded slowly or timed out from edge (${region !== 'unknown' ? region : 'unknown'}).\nPossible regional block or performance issue.\n(${errorMsg})`;
+    finalMessage = `⚠️ Mixed signal — site responded slowly or timed out from edge (${region} in ${city}, ${country}).\n` +
+                   `TLS secure: ${tlsValid ? 'Yes' : 'No'} | Content valid: ${contentValid ? 'Yes' : 'No'}\n` +
+                   `Possible regional block or performance issue.\n(${errorMsg})`;
     confidence = 50;
   } else {
-    finalMessage = `❌ The site is unreachable from global edge infrastructure${region !== 'unknown' ? ` (${region})` : ''}.\nLikely global outage, regional restriction, or severe block.\n(${errorMsg || 'No response received'})`;
+    finalMessage = `❌ Unreachable from ${region} edge in ${city}, ${country} (${asOrganization}, ASN ${asn}).\n` +
+                   `TLS secure: ${tlsValid ? 'Yes' : 'No'} | Content valid: ${contentValid ? 'Yes' : 'No'}\n` +
+                   `Timezone: ${timezone}\nLikely global outage, regional restriction, or severe block.\n(${errorMsg || 'No response received'})`;
   }
 
   setResult(finalMessage + `\nConfidence: ${confidence}%`);
-  setProgress(100);
-  setProgressText('Complete');
 } else {
-  // Quick mode
+  // Quick mode (unchanged)
   const serverResponse = await fetch(`/api/check?url=${encodeURIComponent(cleanInput)}`);
   const serverData = await serverResponse.json();
 
@@ -141,6 +275,18 @@ if (useDeepCheck) {
   useEffect(() => {
     checkSite(decodedSite);
   }, [decodedSite]);
+  useEffect(() => {
+  // Load scanCount from localStorage on mount (client-only)
+  const saved = localStorage.getItem('deepScanCount');
+  if (saved) {
+    setScanCount(parseInt(saved, 10));
+  }
+}, []);
+
+useEffect(() => {
+  // Save scanCount to localStorage whenever it changes
+  localStorage.setItem('deepScanCount', scanCount.toString());
+}, [scanCount]);
 
   const handleRefresh = () => checkSite(decodedSite);
 
@@ -198,6 +344,7 @@ if (useDeepCheck) {
           textAlign: 'center',
           maxWidth: 'clamp(340px, 80vw, 420px)'
         }}>
+
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -278,6 +425,18 @@ if (useDeepCheck) {
               : 'Quick Check: fast single-server check (1–2s, instant results)'}
           </p>
         </div>
+        {/* Turnstile CAPTCHA - only show when deep mode is on */}
+{useDeepCheck && (
+  <div style={{ margin: '20px auto', textAlign: 'center', maxWidth: '300px' }}>
+    <div
+      className="cf-turnstile"
+      data-sitekey={process.env.NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITEKEY}
+      data-callback="onTurnstileSuccess"
+      data-action="deep_check"
+      data-theme="dark"
+    ></div>
+  </div>
+)}
 
         {/* Loading with % bar */}
         {loading ? (
@@ -481,6 +640,22 @@ if (useDeepCheck) {
         }}>
           Powered by multi-region server checks. Results are indicative — test in browser to confirm.
         </p>
+{/* Cloudflare Turnstile Script */}
+<Script
+  src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+  strategy="afterInteractive"
+  onLoad={() => console.log('Turnstile script loaded')}
+/>
+
+{/* Global Turnstile callback */}
+<Script id="turnstile-callback" strategy="afterInteractive">
+  {`
+    window.onTurnstileSuccess = function(token) {
+      console.log('Turnstile token received:', token);
+      setCaptchaToken(token); // update state
+    };
+  `}
+</Script>
       </div>
     </div>
   );
