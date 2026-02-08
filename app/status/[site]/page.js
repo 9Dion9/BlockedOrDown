@@ -1,11 +1,9 @@
-export const runtime = 'edge';
 'use client';
-
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import Script from 'next/script';
-
+export const runtime = 'edge';
  const popularSites = [
     // Social & Messaging
     'youtube-com', 'facebook-com', 'instagram-com', 'twitter-com', 'tiktok-com',
