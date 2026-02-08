@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 export async function GET() {
   const baseUrl = 'https://blocked-or-down.vercel.app';
 

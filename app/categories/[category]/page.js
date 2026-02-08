@@ -1,5 +1,5 @@
 import CategoryScan from './CategoryScan';
-
+export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 const categoryData = {

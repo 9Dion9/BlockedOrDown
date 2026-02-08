@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 // app/api/check/route.js
 import { NextResponse } from 'next/server';
 

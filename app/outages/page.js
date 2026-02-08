@@ -1,5 +1,5 @@
 import ClientOutages from './ClientOutages';
-
+export const runtime = 'edge';
 export const revalidate = 300; // 5 min cache
 export const dynamic = 'force-dynamic';
 

@@ -1,3 +1,4 @@
+export const runtime = 'edge';
 'use client';
 
 import { useTheme } from '../ThemeProvider';  // <-- this path must match your folder structure
