@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "postbuild": "next-sitemap"
+    "postbuild": "next-sitemap",
+    "pages:build": "npx opennext build"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.16.3",
