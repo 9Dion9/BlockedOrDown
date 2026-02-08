@@ -1,11 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://your-vercel-domain.vercel.app',
-  generateRobotsTxt: true,
-  sitemapSize: 5000, // split if too large
-  changefreq: 'daily',
-  priority: 0.7,
-  exclude: ['/api/*'], // don't index API routes
+  output: 'standalone',
+  images: {
+    unoptimized: true, // Required for Cloudflare Pages/Workers
+  },
+  trailingSlash: false,
 };
 
-module.exports = nextConfig;
+const withCloudflare = require('@opennextjs/cloudflare');
+
+module.exports = withCloudflare(nextConfig);

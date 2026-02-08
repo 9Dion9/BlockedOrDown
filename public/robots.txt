@@ -3,7 +3,7 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://blocked-or-down.vercel.app
+Host: https://blockedordown3.pages.dev
 
 # Sitemaps
-Sitemap: https://blocked-or-down.vercel.app/sitemap.xml
+Sitemap: https://blockedordown3.pages.dev/sitemap.xml

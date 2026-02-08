@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: 'https://blocked-or-down.vercel.app',
+  siteUrl: 'https://blockedordown3.pages.dev',
   generateRobotsTxt: true,
   sitemapSize: 10000, // safe for 1000+ URLs
   changefreq: 'daily',
