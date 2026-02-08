@@ -1,10 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',          // Required for Cloudflare Workers/Pages compatibility
   images: {
-    unoptimized: true, // Required for Cloudflare Pages/Workers
+    unoptimized: true,           // Cloudflare does not support optimized images yet
   },
+  trailingSlash: false,
 };
 
-const withCloudflare = require('@opennextjs/cloudflare');
-
-module.exports = withCloudflare(nextConfig);
+module.exports = nextConfig;
