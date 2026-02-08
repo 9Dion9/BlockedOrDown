@@ -7,6 +7,4 @@ const nextConfig = {
   trailingSlash: false,
 };
 
-const withCloudflare = require('@opennextjs/cloudflare');
-
-module.exports = withCloudflare(nextConfig);
+module.exports = nextConfig;
